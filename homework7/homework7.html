@@ -1,0 +1,24 @@
+<script src="processing.js"></script> 
+<canvas data-processing-sources="homework6.pde"></canvas>
+
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Homework 7</title>
+        <link rel="stylesheet" href="homework.css" />
+    </head>
+
+    <body>
+    <h3> Control explanation : </h3>
+    <p> You can place at most 100 points. When all of your points are placed, you can press "enter" to display the complex hull.  </p>
+
+    <h3> Algorithm explanation : </h3>
+    <p> I implemented the Jarvis March algorithm with some modifications to handle special cases. If several point are possible for the leftmost one, the choosen one is the one with the lowest y-coordinate. This choice comes from the observation that all the points at the leftmost will be included in the convex hull so the higher or the lowest can be choosen. For choosing the next point, if 2 points have the same angle, the one which is the farest is choosen. Because if the closest was choosen first, the farest will be choosen next. </p>
+
+    <p>Remark : The coordnates of points are rounded (e.g : 123 => 120) s.t. it is easier to place colinear point.  </p>
+
+
+    
+
+   </body>
+</html>
