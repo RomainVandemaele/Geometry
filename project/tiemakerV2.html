@@ -1,0 +1,169 @@
+<html>
+<head>
+  <script src="processing.js"></script>
+   <script src="math.js"></script>
+   <script src="Point.js"></script>
+   <script src="Polygon.js"></script>
+   <script src="geometry.js"></script>
+   <script src="FlatTorrus.js"></script>
+   <script src="FlatTriangle.js"></script>
+</head>
+<body><h1>Processing.js</a></h1>
+<h2>Advanced processing.js via JavaScript</h2>
+
+
+<canvas id="canvas1" width="200" height="200"></canvas>
+<canvas id="canvas2" width="200" height="200"></canvas>
+
+<script id="script1" type="text/javascript">
+/*TO DO/IDEE :
+-ctrl-2
+
+Part 2 :
+-emboitement
+
+
+*/
+
+var tilemaker;
+var polygons = [];
+var selectedPolygon = null;
+
+var pointSize = 8;
+var CANVAS_WIDTH = 1500;
+var CANVAS_HEIGHT = 750;
+
+var FOLDING = 1;
+var TILING = 2;
+
+var MODE = FOLDING;
+
+
+
+function init(proc) {
+    tilemaker = new ETD(new Point(CANVAS_WIDTH/2,CANVAS_HEIGHT/2),proc);
+    tilemaker.draw();
+    tilemaker.crossed();
+
+}
+
+
+
+// Attaching js code to the canvas by using a sketch object
+
+var sketch = new Processing.Sketch();
+
+sketch.attachFunction = function(processing) {
+ 
+  processing.setup = function() {
+    processing.background(155);
+    processing.fill(100);
+    processing.size(CANVAS_WIDTH, CANVAS_HEIGHT);
+    processing.fill(255);
+    //processing.frameRate(200);
+    init(processing);
+  };
+
+  processing
+  
+
+  processing.draw = function() {
+    if(MODE == TILING  ) {
+      
+      processing.background(155);
+      for(j=polygons.length-1;j>=0;j--) {
+        //processing.println("DRAW POLYGON "+j);
+        polygons[j].draw();
+        //processing.println("DRAWED POLYGON "+j);
+      }
+    }
+    
+  }
+
+  
+  // mouse event
+  processing.mouseDragged = function() {
+    if(MODE== FOLDING &&  tilemaker.hasStarted() && !tilemaker.hasEnded()) {
+      tilemaker.addPoint(processing.mouseX,processing.mouseY);
+    }else if(MODE==TILING && selectedPolygon.isSelected() ) { //&& polygon.isInPolygon(processing.mouseX,processing.mouseY)
+      //processing.println("MOVE");
+      if(selectedPolygon != null) {
+        selectedPolygon.move(processing.mouseX - processing.pmouseX, processing.mouseY - processing.pmouseY); 
+      }
+      
+    }
+  };
+
+  processing.keyPressed = function() {
+  	if (processing.keyCode == processing.ENTER) {
+  		if(tilemaker.hasEnded()) {
+        processing.background(155); //clean 
+        polygons.push(tilemaker.drawUnFolded());
+        MODE = TILING;
+      }
+    }else if (processing.keyCode == processing.DOWN) {
+    	//rotx -= Math.PI/2;
+    }else if (processing.keyCode == processing.LEFT) {
+    	//roty -= Math.PI/2;
+    }else if (processing.keyCode == processing.RIGHT) {
+    	//roty += Math.PI/2;
+    }else if (processing.key == 114) { //key == r(reset)
+      //processing.println("MODE : "+MODE);
+
+      if(MODE== FOLDING &&  tilemaker.hasStarted()) { //folding already begun
+        tilemaker.resetMove();
+      }else if(MODE == TILING) { //TODO : change if better usage found
+        MODE = FOLDING;
+        tilemaker.resetMove();
+        polygons.pop();
+      }
+    }
+
+  };
+
+  processing.mousePressed = function () {
+    if (processing.mouseButton == processing.LEFT) {
+      if(MODE == FOLDING && !tilemaker.hasStarted()) { //folding already begined
+          tilemaker.begin(processing.mouseX,processing.mouseY);
+      }else if(MODE == TILING) {
+        var i = 0;
+        var found = false;
+        while(i < polygons.length && !found) {
+          processing.println("SEARCH POLYGON "+i);
+          if(polygons[i].isInPolygon(processing.mouseX,processing.mouseY)) {
+            processing.println("FOUND POLYGON "+i);
+            polygons[i].select();
+            if(polygons[i].isSelected()) {
+              selectedPolygon = polygons[i];
+            }else {
+              selectedPolygon = null;
+            }
+            found = true;
+          }
+          i++
+        }
+      }
+    }else if(processing.mouseButton == processing.RIGHT) {
+        if(MODE == TILING && selectedPolygon!=null) {
+          processing.println("OK");
+          polygons.push(selectedPolygon.copy());
+          processing.println("POLYGON CREATED : "+polygons[polygons.length - 1].getLenght());
+          //polygons[polygons.length-1].draw();
+        }
+    }
+  
+  };
+
+};
+
+
+
+var canvas = document.getElementById("canvas1");
+// attaching the sketch to the canvas
+var p = new Processing(canvas, sketch);
+
+
+
+</script>
+</body>
+</html>
