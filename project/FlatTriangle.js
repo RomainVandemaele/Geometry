@@ -5,11 +5,12 @@ function ETD(center,proc) { //flat equilateral trangle
   this.p1 = new Point(center.getX() , center.getY() - HEIGHT/2 );
   this.p2 = new Point(center.getX() + WIDTH/2 , center.getY() + HEIGHT/2 );
   this.p3 = new Point(center.getX() - WIDTH/2 , center.getY() + HEIGHT/2 );
-
+  this.c = center;
   
   this.move = [];
   this.endMove = false;
   this.p = proc;
+
 
   this.hasStarted = function() {
     return this.move.length!=0;
@@ -88,12 +89,13 @@ function ETD(center,proc) { //flat equilateral trangle
 
    this.drawUnFolded = function() {
     this.p.background(155);
+    var polygons = [];
+    var polygon = new Polygon(this.p,this.c);
+    var polygon2 = new Polygon(this.p,this.c); 
 
-
-    var polygon = new Polygon(this.p);
-    polygon.addPoint(this.p1.getX(),this.p1.getY());
+    polygon2.addPoint(this.p1.getX(),this.p1.getY());
     for(i = 0 ; i < this.move.length; i++) {
-      polygon.addPoint(  this.move[i].getX(), this.p1.getY() - (this.move[i].getY() - this.p1.getY() )    );
+      polygon2.addPoint(  this.move[i].getX(), this.p1.getY() - (this.move[i].getY() - this.p1.getY() )    );
     }
 
     
@@ -101,12 +103,15 @@ function ETD(center,proc) { //flat equilateral trangle
       var x1 = this.move[this.move.length-1].getX();
       var x2 = this.p2.getX();
       while(x1 < x2 ) {
-        polygon.addPoint( x1 , this.p1.getY() - (this.p2.getY() - this.p1.getY())   );
+        polygon2.addPoint( x1 , this.p1.getY() - (this.p2.getY() - this.p1.getY())   );
         x1+=5;
       }
     }
     
 
+    //polygon2.addPoint(this.p1.getX(),this.p1.getY());
+    polygon2.reduce(2);
+    polygons.push(polygon2);
     polygon.addPoint(this.p1.getX(),this.p1.getY());
     polygon.addPoint(this.p2.getX(),this.p2.getY());
 
@@ -115,9 +120,17 @@ function ETD(center,proc) { //flat equilateral trangle
     }
 
     polygon.addPoint(this.p3.getX(),this.p3.getY());
-    polygon.reduce(2.5);
-    return polygon;
+    polygon.reduce(2);
+    polygons.push(polygon);
+    return polygons;
   
   }
+
+  this.printAngle = function() {
+    this.p.println((calculateAngle(this.p1,this.p2,this.p3)/Math.PI)*180 );
+    this.p.println(calculateAngle(this.p2,this.p3,this.p1));
+    this.p.println(calculateAngle(this.p3,this.p1,this.p2));
+  }
+
 
 }

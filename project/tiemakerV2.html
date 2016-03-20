@@ -7,6 +7,7 @@
    <script src="geometry.js"></script>
    <script src="FlatTorrus.js"></script>
    <script src="FlatTriangle.js"></script>
+   <script src="KleinBottle.js"></script>
 </head>
 <body><h1>Processing.js</a></h1>
 <h2>Advanced processing.js via JavaScript</h2>
@@ -20,6 +21,8 @@
 -ctrl-2
 
 Part 2 :
+-delete
+-avoid crossing in move and rotating
 -emboitement
 
 
@@ -28,6 +31,7 @@ Part 2 :
 var tilemaker;
 var polygons = [];
 var selectedPolygon = null;
+var selectedPoint =  null;
 
 var pointSize = 8;
 var CANVAS_WIDTH = 1500;
@@ -35,16 +39,19 @@ var CANVAS_HEIGHT = 750;
 
 var FOLDING = 1;
 var TILING = 2;
-
 var MODE = FOLDING;
+
+var MOVING = 0;
+var ROTATING = 1;
+var TILING_MODE = MOVING;
 
 
 
 function init(proc) {
-    tilemaker = new ETD(new Point(CANVAS_WIDTH/2,CANVAS_HEIGHT/2),proc);
+    tilemaker = new KleinBottle(new Point(CANVAS_WIDTH/2 - 300,CANVAS_HEIGHT/2),proc);
+    //tilemaker = new FlatTorrus(new Point(CANVAS_WIDTH/2,CANVAS_HEIGHT/2),proc);
     tilemaker.draw();
     tilemaker.crossed();
-
 }
 
 
@@ -76,6 +83,9 @@ sketch.attachFunction = function(processing) {
         polygons[j].draw();
         //processing.println("DRAWED POLYGON "+j);
       }
+      if(selectedPoint!=null) {
+        processing.ellipse(selectedPoint.getX(), selectedPoint.getY(),pointSize,pointSize);
+      }
     }
     
   }
@@ -84,38 +94,61 @@ sketch.attachFunction = function(processing) {
   // mouse event
   processing.mouseDragged = function() {
     if(MODE== FOLDING &&  tilemaker.hasStarted() && !tilemaker.hasEnded()) {
-      tilemaker.addPoint(processing.mouseX,processing.mouseY);
-    }else if(MODE==TILING && selectedPolygon.isSelected() ) { //&& polygon.isInPolygon(processing.mouseX,processing.mouseY)
-      //processing.println("MOVE");
-      if(selectedPolygon != null) {
+      //tilemaker.addPoint(processing.mouseX,processing.mouseY);
+    }else if(MODE==TILING && selectedPolygon!=null ) { //&& polygon.isInPolygon(
+      if(TILING_MODE == MOVING) {
         selectedPolygon.move(processing.mouseX - processing.pmouseX, processing.mouseY - processing.pmouseY); 
+        //processing.println("test overlapping 1");
+        var test = polygonsCrossing(selectedPolygon,polygons);
+        //processing.println("test overlapping 2 ");
+        if(test==true) {
+          selectedPolygon.move( - (processing.mouseX - processing.pmouseX),- (processing.mouseY - processing.pmouseY)); 
+        }
+      }else if(TILING_MODE == ROTATING) {
+        //processing.println("ROTATE");
+        selectedPolygon.rotate(2);
+        var test = polygonsCrossing(polygons,processing);
+        if(test==true) {
+          selectedPolygon.rotate(-2);
+        }
       }
       
     }
   };
 
   processing.keyPressed = function() {
+    processing.println(processing.key);
   	if (processing.keyCode == processing.ENTER) {
   		if(tilemaker.hasEnded()) {
         processing.background(155); //clean 
-        polygons.push(tilemaker.drawUnFolded());
+        //processing.println("ENTER");
+        var polys = tilemaker.drawUnFolded();
+        //processing.println("UNFOLDED "+polys.length );
+        for( j = 0; j<polys.length;j++) {
+          //processing.println("ADD POLY "+j);
+          polygons.push(polys[j]);
+        }
         MODE = TILING;
       }
     }else if (processing.keyCode == processing.DOWN) {
     	//rotx -= Math.PI/2;
-    }else if (processing.keyCode == processing.LEFT) {
-    	//roty -= Math.PI/2;
-    }else if (processing.keyCode == processing.RIGHT) {
-    	//roty += Math.PI/2;
+    }else if (processing.key == 116) { //key = t(est)
+      if(MODE == TILING) {
+        processing.println("TEST");
+        var res = tilePlane(0,polygons,processing);
+        processing.println(res);
+      }
+    }else if (processing.key == 115) { //key = "s"witch
+      if(MODE == TILING) {
+        TILING_MODE = (TILING_MODE + 1 ) %2 
+      }
     }else if (processing.key == 114) { //key == r(reset)
-      //processing.println("MODE : "+MODE);
-
       if(MODE== FOLDING &&  tilemaker.hasStarted()) { //folding already begun
         tilemaker.resetMove();
       }else if(MODE == TILING) { //TODO : change if better usage found
         MODE = FOLDING;
         tilemaker.resetMove();
-        polygons.pop();
+        polygons = [];
       }
     }
 
@@ -123,21 +156,27 @@ sketch.attachFunction = function(processing) {
 
   processing.mousePressed = function () {
     if (processing.mouseButton == processing.LEFT) {
-      if(MODE == FOLDING && !tilemaker.hasStarted()) { //folding already begined
-          tilemaker.begin(processing.mouseX,processing.mouseY);
+      if(MODE == FOLDING ) { //folding already begined
+        if(!tilemaker.hasStarted()) {
+          tilemaker.begin(processing.mouseX,processing.mouseY); 
+        }else if(!tilemaker.hasEnded()){
+          tilemaker.addPoint(processing.mouseX,processing.mouseY);
+        }
       }else if(MODE == TILING) {
         var i = 0;
         var found = false;
         while(i < polygons.length && !found) {
-          processing.println("SEARCH POLYGON "+i);
+          //processing.println("SEARCH POLYGON "+i);
           if(polygons[i].isInPolygon(processing.mouseX,processing.mouseY)) {
-            processing.println("FOUND POLYGON "+i);
-            polygons[i].select();
-            if(polygons[i].isSelected()) {
-              selectedPolygon = polygons[i];
-            }else {
-              selectedPolygon = null;
-            }
+            //processing.println("FOUND POLYGON "+i);
+            if(selectedPolygon == polygons[i] || selectedPolygon == null) {
+              polygons[i].select();
+              if(polygons[i].isSelected()) {
+                selectedPolygon = polygons[i];
+              }else {
+                selectedPolygon = null;
+              }
+            } 
             found = true;
           }
           i++
@@ -145,9 +184,9 @@ sketch.attachFunction = function(processing) {
       }
     }else if(processing.mouseButton == processing.RIGHT) {
         if(MODE == TILING && selectedPolygon!=null) {
-          processing.println("OK");
+          //processing.println("OK");
           polygons.push(selectedPolygon.copy());
-          processing.println("POLYGON CREATED : "+polygons[polygons.length - 1].getLenght());
+          //processing.println("POLYGON CREATED : "+polygons[polygons.length - 1].getLenght());
           //polygons[polygons.length-1].draw();
         }
     }

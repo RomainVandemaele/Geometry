@@ -1,4 +1,4 @@
-function FlatTorrus(center,proc) {
+function KleinBottle(center,proc) {
   var WIDTH =  800;
   var HEIGHT = 225;
 
