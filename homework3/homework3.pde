@@ -23,15 +23,25 @@ int vectorProduct(int ax,int ay,int bx,int by,int cx,int cy) {
 	return (bx-ax)*(cy-by) - (by-ay)*(cx-bx);
 }
 
-/** Return a boolean indicating 
-if the segment between Pa et Pb is crossing Pp
-**/
-boolean isCrossed(int a,int p) {
-	int v1 = vectorProduct(points[2*p],points[2*p+1],points[2*a],points[2*a+1],points[2*a],points[2*p+1]);
-	int v2 = vectorProduct(points[2*p],points[2*p+1],points[2*((a+1)%nbrPoint)],points[2*((a+1)%nbrPoint)+1],points[2*a],points[2*p+1]);
-	int maxX = points[2*a]>points[2*((a+1)%nbrPoint)]?points[2*a]:points[2*((a+1)%nbrPoint)];
-	int minX = points[2*a]>points[2*((a+1)%nbrPoint)]?points[2*((a+1)%nbrPoint)]:points[2*a];
-	return v1*v2 < 0 && points[2*p]<= maxX -((maxX-minX)/2) ;
+int vectorProduct2(ax,ay,bx,by) {
+    return ax*by - ay*bx;
+}
+
+boolean isCrossing(ax,ay,bx,by,cx,cy,dx,dy) {
+    int rx = bx - ax;
+    int ry = by - ay;
+    int sx = dx - cx;
+    int sy = dy - cy;
+    int vp = vectorProduct2(rx,ry,sx,sy);
+    if(vp !=0) {
+      int t = vectorProduct2(cx - ax, cy-ay ,sx, sy);
+      t = t/vp;
+
+      int u = vectorProduct2(cx - ax, cy-ay ,rx, ry);
+      u = u/vp;
+      return u >=0 && u <=1 && t>=0 && t<=1;
+    }
+    return false;
 }
 
 /** Return a boolean indicating 

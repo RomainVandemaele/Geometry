@@ -6,8 +6,9 @@ function FlatTorrus(center,proc) {
   this.p2 = new Point(center.getX() + WIDTH/2 , center.getY() - HEIGHT/2 );
   this.p3 = new Point(center.getX() + WIDTH/2 , center.getY() + HEIGHT/2 );
   this.p4 = new Point(center.getX() - WIDTH/2 , center.getY() + HEIGHT/2 );
-
   
+
+
   this.move = [];
   this.endMove = false;
   this.p = proc;
@@ -30,7 +31,7 @@ function FlatTorrus(center,proc) {
       this.p.ellipse(this.p1.getX(),y,pointSize,pointSize);
       this.p.fill(100);
     }
-    
+
   }
 
   this.addPoint =function(x,y) {

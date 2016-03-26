@@ -34,8 +34,14 @@ function polygonsCrossing(selectedPolygon,polygons) {
   return res1;
 }
 
-function isInTriangle(p1,p2,p3,x,y) { 
+function isInTriangle(p1,p2,p3,x,y) {
   return vectorProduct(p1.getX(),p1.getY(),p2.getX(),p2.getY(),x,y)*vectorProduct(p1.getX(),p1.getY(),p3.getX(),p3.getY(),x,y) < 0 && vectorProduct(p2.getX(),p2.getY(),p3.getX(),p3.getY(),x,y) > 0
+}
+
+function bissectrice(p1,p2,p) {
+  var deltaX = p1.getX() - p2.getX();
+  var deltaY = p1.getY() - p2.getY();
+  return new Point(p1.getX() - 0.5*deltaX,p1.getY() - 0.5*deltaY );
 }
 
 function calculateDistance(p1,p2) {
@@ -57,7 +63,7 @@ function calculateAngle(p1,p2,p3,proc,poly) {
 
   var r = (v1.getX()*v2.getX() + v1.getY()*v2.getY()) / (d1*d2);
   //proc.println("R : " + r);
-  
+
   //TO DO change with dot roduct of vectors v1(p1) et v2(p3)
   //proc.println(r);
   var angle =  Math.acos(  r  );
@@ -70,12 +76,12 @@ function calculateAngle(p1,p2,p3,proc,poly) {
   var r1 = 0.5;
   var r2 = 0.5;
   var pointInterior = new Point( (1 - Math.sqrt(r1) ) * p1.getX() + Math.sqrt(r1)*(1-r2)*p2.getX() + r2*Math.sqrt(r1)*p3.getX()  , (1 - Math.sqrt(r1) ) * p1.getY() + Math.sqrt(r1)*(1-r2)*p2.getY() + r2*Math.sqrt(r1)*p3.getY()   );
-  
+
   if( !poly.isInPolygon(pointInterior.getX(),pointInterior.getY()) ) {
     angle = Math.PI*2 - angle;
   }
   return angle;
-  
+
 }
 
 //verif if exists a point where polygon form a 360°
@@ -84,7 +90,7 @@ function tilePlane(index,polygons,proc) {
   var p = polygons[index].getPoints();
   //proc.println("OK 1");
   //for each point verif if it exist in all other polygons and then verif if they form a tessalation
-  for(i=0;i<p.length;i++) { 
+  for(i=0;i<p.length;i++) {
     //proc.println("OK 2 "+i);
     var angle = 0;
     var count = 0;

@@ -43,13 +43,23 @@ function Polygon(proc,center) {
 
   //check if there is an overlapping with polygon P
   this.isOverlapping = function(P) {
-    //this.p.println(this.points[0].getX());
-    var i=0;
+    
+    var a=0;
+    var b=0;
     var res = false;
-    while ( i<this.points.length && !res) {
+    while ( a<this.points.length && !res) {
+      while ( b<P.points.length && !res) { 
+        res = isCrossing(this.points[a], this.points[(a+1)%this.points.length],P.points[b], P.points[(b+1)%P.points.length]    );
+        b++;
+      }
+      a++;
+      b=0;
+    }
+    //this.p.println("Res : "+res);
+    /*while ( i<this.points.length && !res) {
       res = P.isInPolygon(this.points[i].getX(),this.points[i].getY() );
       i++;
-    }
+    }*/
     return res;
   }
 

@@ -1,15 +1,17 @@
 
 
 function FlatRectangle(center,proc) {
+  proc.println("OK 1");
   var WIDTH =  500;
   var HEIGHT = 225;
-
+  proc.println("OK 2");
   this.p1 = new Point(center.getX() - WIDTH/2 , center.getY() - HEIGHT/2 );
   this.p2 = new Point(center.getX() + WIDTH/2 , center.getY() - HEIGHT/2 );
   this.p3 = new Point(center.getX() + WIDTH/2 , center.getY() + HEIGHT/2 );
   this.p4 = new Point(center.getX() - WIDTH/2 , center.getY() + HEIGHT/2 );
 
-  
+  proc.println("OK 3");
+
   this.move = [];
   this.endMove = false;
   this.p = proc;
