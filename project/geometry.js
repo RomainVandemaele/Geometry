@@ -35,7 +35,7 @@ function polygonsCrossing(selectedPolygon,polygons) {
 }
 
 function isInTriangle(p1,p2,p3,x,y) {
-  return vectorProduct(p1.getX(),p1.getY(),p2.getX(),p2.getY(),x,y)*vectorProduct(p1.getX(),p1.getY(),p3.getX(),p3.getY(),x,y) < 0 && vectorProduct(p2.getX(),p2.getY(),p3.getX(),p3.getY(),x,y) > 0
+  return vectorProduct(p1.getX(),p1.getY(),p2.getX(),p2.getY(),x,y)*vectorProduct(p1.getX(),p1.getY(),p3.getX(),p3.getY(),x,y) < 0 && vectorProduct(p2.getX(),p2.getY(),p3.getX(),p3.getY(),x,y)*vectorProduct(p2.getX(),p2.getY(),p1.getX(),p1.getY(),x,y) < 0
 }
 
 function bissectrice(p1,p2,p) {

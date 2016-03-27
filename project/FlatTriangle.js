@@ -6,7 +6,7 @@ function ETD(center,proc) { //flat equilateral trangle
   this.p2 = new Point(center.getX() + WIDTH/2 , center.getY() + HEIGHT/2 );
   this.p3 = new Point(center.getX() - WIDTH/2 , center.getY() + HEIGHT/2 );
   this.c = center;
-  
+
   this.move = [];
   this.endMove = false;
   this.p = proc;
@@ -22,13 +22,18 @@ function ETD(center,proc) { //flat equilateral trangle
 
   this.begin = function(x,y) {
     //test if point on P1-P3
+    /*if(isInTriangle(this.p1,this.p3,this.p2,x,y)) {
+      this.p.println("Is in");
+    }else {
+      this.p.println("Is out");
+    }*/
     if( math.abs(vectorProduct(this.p1.getX(),this.p1.getY(),this.p3.getX(),this.p3.getY(),x,y)) < 1500  && this.p1.getY() <= y && this.p3.getY() >= y  ) {
       this.move.push(new Point(x,y));
       this.p.fill(255,0,0);
       this.p.ellipse(x,y,pointSize,pointSize);
       this.p.fill(100);
     }
-    
+
   }
 
   this.addPoint =function(x,y) {
@@ -91,14 +96,14 @@ function ETD(center,proc) { //flat equilateral trangle
     this.p.background(155);
     var polygons = [];
     var polygon = new Polygon(this.p,this.c);
-    var polygon2 = new Polygon(this.p,this.c); 
+    var polygon2 = new Polygon(this.p,this.c);
 
     polygon2.addPoint(this.p1.getX(),this.p1.getY());
     for(i = 0 ; i < this.move.length; i++) {
       polygon2.addPoint(  this.move[i].getX(), this.p1.getY() - (this.move[i].getY() - this.p1.getY() )    );
     }
 
-    
+
     if(this.move[this.move.length-1].getY() == this.p2.getY()) {
       var x1 = this.move[this.move.length-1].getX();
       var x2 = this.p2.getX();
@@ -107,7 +112,7 @@ function ETD(center,proc) { //flat equilateral trangle
         x1+=5;
       }
     }
-    
+
 
     //polygon2.addPoint(this.p1.getX(),this.p1.getY());
     polygon2.reduce(2);
@@ -123,7 +128,7 @@ function ETD(center,proc) { //flat equilateral trangle
     polygon.reduce(2);
     polygons.push(polygon);
     return polygons;
-  
+
   }
 
   this.printAngle = function() {

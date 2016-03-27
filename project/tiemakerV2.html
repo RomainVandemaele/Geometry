@@ -52,14 +52,14 @@ var TILING_MODE = MOVING;
 
 function init(proc) {
     //tilemaker = new KleinBottle(new Point(CANVAS_WIDTH/2 - 300,CANVAS_HEIGHT/2),proc);
-    tilemaker = new Tetrahedra(new Point(CANVAS_WIDTH/2,CANVAS_HEIGHT/2),proc);
+    tilemaker = new Tetrahedra(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2),proc);
     tilemaker.draw();
-    proc.println("Choose you tilemaker :");
+    /*proc.println("Choose you tilemaker :");
     proc.println("1. Flat Rectangle");
     proc.println("2. Equilateral triangle");
     proc.println("3. Flat Torrus");
     proc.println("4. Flat klein bottle");
-    proc.println("5. Tetrahedra");
+    proc.println("5. Tetrahedra");*/
 }
 
 
