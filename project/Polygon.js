@@ -8,6 +8,10 @@ function Polygon(proc,center) {
     this.points.push(new Point(x,y));
   }
 
+  this.setCenter = function(c) {
+    this.c = c;
+  }
+
   this.copy = function() {
     var P = new Polygon(this.p,new Point(this.c.getX()+300,this.c.getY()+300));
     //this.p.println("OK2");
@@ -26,6 +30,7 @@ function Polygon(proc,center) {
   }
 
   this.isInPolygon =  function(x,y) {
+  this.p.println("OK3.1 "+this.points.length);
   //this.p.println("OK");
 	var p = new Point(x,y);
 	var p2 = new Point(2000,y);
@@ -43,12 +48,12 @@ function Polygon(proc,center) {
 
   //check if there is an overlapping with polygon P
   this.isOverlapping = function(P) {
-    
+
     var a=0;
     var b=0;
     var res = false;
     while ( a<this.points.length && !res) {
-      while ( b<P.points.length && !res) { 
+      while ( b<P.points.length && !res) {
         res = isCrossing(this.points[a], this.points[(a+1)%this.points.length],P.points[b], P.points[(b+1)%P.points.length]    );
         b++;
       }
@@ -61,6 +66,12 @@ function Polygon(proc,center) {
       i++;
     }*/
     return res;
+  }
+
+  this.displayCenter = function() {
+    this.p.fill(255,0,0);
+    this.p.ellipse(this.c.getX(),this.c.getY(),pointSize,pointSize);
+    this.p.fill(100);
   }
 
   this.displayPoint = function() {
@@ -82,7 +93,8 @@ function Polygon(proc,center) {
     if(this.isSelected()) {
       this.p.stroke(255,0,0);
     }
-    //this.p.println("OK3.1 "+this.points.length);
+
+
   	for(i=0;i<this.points.length;i++) {
       //this.p.println("OK3.2");
       this.p.ellipse(this.points[i].getX(), this.points[i].getY(), 5,5);
@@ -98,7 +110,7 @@ function Polygon(proc,center) {
       this.p.line(this.points[i].getX(), this.points[i].getY() ,this.points[(i+1)%this.points.length].getX(), this.points[(i+1)%this.points.length].getY());
     }
     this.p.stroke(0);
-  } 
+  }
 
   this.select = function() {
     var color = 255;
@@ -116,7 +128,7 @@ function Polygon(proc,center) {
 
   this.isSelected = function() {
     return this.selected;
-  } 
+  }
 
   this.move = function(deltaX,deltaY) {
   	for(i=0;i<this.points.length;i++) {
@@ -127,7 +139,7 @@ function Polygon(proc,center) {
   }
 
   this.rotate = function(angle) {
-    angle = (angle/180)*Math.PI; 
+    angle = (angle/180)*Math.PI;
     for(i=0;i<this.points.length;i++) {
       var transX =   (this.points[i].getX() - this.c.getX() ) ;
       var transY =   (this.points[i].getY() - this.c.getY() ) ;

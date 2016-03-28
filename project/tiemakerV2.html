@@ -9,6 +9,7 @@
    <script src="FlatRectangle.js"></script>
    <script src="FlatTriangle.js"></script>
    <script src="KleinBottle.js"></script>
+   <script src="Face.js"></script>
    <script src="Tetrahedra.js"></script>
 </head>
 <body><h1>Processing.js</a></h1>
@@ -24,7 +25,7 @@
 
 Part 2 :
 -delete
--avoid crossing in move and rotating
+-avoid crossing in rotation
 -emboitement
 
 
@@ -52,7 +53,7 @@ var TILING_MODE = MOVING;
 
 function init(proc) {
     //tilemaker = new KleinBottle(new Point(CANVAS_WIDTH/2 - 300,CANVAS_HEIGHT/2),proc);
-    tilemaker = new Tetrahedra(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2),proc);
+    tilemaker = new Tetrahedra(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2-100),proc);
     tilemaker.draw();
     /*proc.println("Choose you tilemaker :");
     proc.println("1. Flat Rectangle");
@@ -89,6 +90,7 @@ sketch.attachFunction = function(processing) {
       for(j=polygons.length-1;j>=0;j--) {
         //processing.println("DRAW POLYGON "+j);
         polygons[j].draw();
+        polygons[j].displayCenter();
         //processing.println("DRAWED POLYGON "+j);
       }
       if(selectedPoint!=null) {
@@ -114,10 +116,10 @@ sketch.attachFunction = function(processing) {
         }
       }else if(TILING_MODE == ROTATING) {
         //processing.println("ROTATE");
-        selectedPolygon.rotate(2);
+        selectedPolygon.rotate(1);
         var test = polygonsCrossing(polygons,processing);
         if(test==true) {
-          selectedPolygon.rotate(-2);
+          selectedPolygon.rotate(-1);
         }
       }
 
