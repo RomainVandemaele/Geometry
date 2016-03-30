@@ -55,6 +55,7 @@ function Tetrahedra(center,proc) { //flat equilateral trangle
 
   this.begin = function(x,y) {
     //test if point on P1-P3
+    this.p.println("BEGIN");
     var i=0;
     while(i<this.faces.length) {
       //if(i!=2) //bottom face
@@ -129,6 +130,11 @@ function Tetrahedra(center,proc) { //flat equilateral trangle
   this.resetMove = function() {
     this.move = [];
     this.endMove = false;
+    this.orderFace = [];
+    this.currentFace = null;
+    for(var i=0;i<this.faces.length;i++) {
+      this.faces[i].reset();
+    }
     this.draw();
   }
 
@@ -195,6 +201,7 @@ function Tetrahedra(center,proc) { //flat equilateral trangle
    }
 
   this.printAngle = function() {
+
     this.p.println((calculateAngle(this.p1,this.p2,this.p3)/Math.PI)*180 );
     this.p.println(calculateAngle(this.p2,this.p3,this.p1));
     this.p.println(calculateAngle(this.p3,this.p1,this.p2));

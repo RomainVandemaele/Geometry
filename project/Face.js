@@ -146,4 +146,11 @@ function Face(p1,p2,p3,proc) {
   this.isFolded = function() {
     return this.folded;
   }
+
+  this.reset = function() {
+    this.folded = false;
+    this.beginEdge = -1;
+    this.endEdge = -1;
+    this.moves = [];
+  }
 }

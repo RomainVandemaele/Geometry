@@ -107,10 +107,9 @@ function ETD(center,proc) { //flat equilateral trangle
     if(this.move[this.move.length-1].getY() == this.p2.getY()) {
       var x1 = this.move[this.move.length-1].getX();
       var x2 = this.p2.getX();
-      while(x1 < x2 ) {
-        polygon2.addPoint( x1 , this.p1.getY() - (this.p2.getY() - this.p1.getY())   );
-        x1+=5;
-      }
+      polygon2.addPoint( x1 , this.p1.getY() - (this.p2.getY() - this.p1.getY())   );
+      polygon2.addPoint( x2 , this.p1.getY() - (this.p2.getY() - this.p1.getY()) );
+
     }
 
 
@@ -126,6 +125,9 @@ function ETD(center,proc) { //flat equilateral trangle
 
     polygon.addPoint(this.p3.getX(),this.p3.getY());
     polygon.reduce(2);
+    polygon.setLinkedPolygon(polygon2);
+    polygon.move(0,2);
+    polygon2.setLinkedPolygon(polygon);
     polygons.push(polygon);
     return polygons;
 

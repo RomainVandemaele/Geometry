@@ -3,6 +3,11 @@ function Polygon(proc,center) {
   this.p = proc;
   this.selected = false;
   this.c = center;
+  this.linkedPolygon =null;
+
+  this.setLinkedPolygon  = function(poly) {
+    this.linkedPolygon = poly;
+  }
 
   this.addPoint = function(x,y) {
     this.points.push(new Point(x,y));
@@ -12,7 +17,7 @@ function Polygon(proc,center) {
     this.c = c;
   }
 
-  this.copy = function() {
+  this.copy = function(link) {
     var P = new Polygon(this.p,new Point(this.c.getX()+300,this.c.getY()+300));
     //this.p.println("OK2");
     for(i=0;i<this.points.length;i++) {
@@ -21,8 +26,17 @@ function Polygon(proc,center) {
     }
     //this.p.println("OK3");
     P.draw();
+    var P2 = null;
+    if(this.linkedPolygon!=null && link ) {var P2 = this.linkedPolygon.copy(false);}
     //this.p.println("OK4 : "+P.points.length);
-    return P;
+    var polys = [P];
+    if(P2!=null) {
+      polys.push(P2[0]);
+      polys[0].setLinkedPolygon(polys[1]);
+      polys[1].setLinkedPolygon(polys[0]);
+      //P2[0].setLinkedPolygon(P1);
+    }
+    return polys;
   }
 
   this.getLenght = function() {
@@ -103,16 +117,17 @@ function Polygon(proc,center) {
     this.p.stroke(0);
   }
 
-  this.erase =function() {
+  this.erase =function(link) {
     this.p.stroke(155);
     this.p.fill(155);
     for(i=0;i<this.points.length;i++) {
       this.p.line(this.points[i].getX(), this.points[i].getY() ,this.points[(i+1)%this.points.length].getX(), this.points[(i+1)%this.points.length].getY());
     }
     this.p.stroke(0);
+    if(this.linkedPolygon!=null && link ) {this.linkedPolygon.erase(false);}
   }
 
-  this.select = function() {
+  this.select = function(link) {
     var color = 255;
     if(this.selected) {
       color = 0;
@@ -123,22 +138,23 @@ function Polygon(proc,center) {
       this.p.line(this.points[i].getX(), this.points[i].getY() ,this.points[(i+1)%this.points.length].getX(), this.points[(i+1)%this.points.length].getY());
     }
     this.p.stroke(0);
-
+    if(this.linkedPolygon!=null && link ) {this.linkedPolygon.select(false);}
   }
 
   this.isSelected = function() {
     return this.selected;
   }
 
-  this.move = function(deltaX,deltaY) {
+  this.move = function(deltaX,deltaY,link) {
   	for(i=0;i<this.points.length;i++) {
   		this.points[i] = new Point(this.points[i].getX()+deltaX, this.points[i].getY()+deltaY);
   	}
     this.c = new Point(this.c.getX()+deltaX, this.c.getY()+deltaY);
+    if(this.linkedPolygon!=null && link ) {this.linkedPolygon.move(deltaX,deltaY,false);}
   	this.draw();
   }
 
-  this.rotate = function(angle) {
+  this.rotate = function(angle,link) {
     angle = (angle/180)*Math.PI;
     for(i=0;i<this.points.length;i++) {
       var transX =   (this.points[i].getX() - this.c.getX() ) ;
@@ -147,6 +163,7 @@ function Polygon(proc,center) {
       var y = transX * Math.sin(angle) + transY * Math.cos(angle);
       this.points[i] = new Point(x + this.c.getX() ,y + this.c.getY() );
     }
+    if(this.linkedPolygon!=null && link ) {this.linkedPolygon.rotate(angle,true);}
     this.draw();
   }
 

@@ -6,7 +6,7 @@ function FlatTorrus(center,proc) {
   this.p2 = new Point(center.getX() + WIDTH/2 , center.getY() - HEIGHT/2 );
   this.p3 = new Point(center.getX() + WIDTH/2 , center.getY() + HEIGHT/2 );
   this.p4 = new Point(center.getX() - WIDTH/2 , center.getY() + HEIGHT/2 );
-  
+
 
 
   this.move = [];
@@ -111,19 +111,22 @@ function FlatTorrus(center,proc) {
     }
     var x1 = this.move[this.move.length-1].getX();
     var x2 = this.p2.getX();
-    while(x1 < x2 ) {
+    polygon.addPoint( x1 , this.p3.getY() + factor2 );
+    polygon.addPoint( x2 , this.p3.getY() + factor2 );
+    /*while(x1 < x2 ) {
       polygon.addPoint( x1 , this.p2.getY() + factor1);
       x1+=5;
-    }
+    }*/
     polygon.addPoint(this.p2.getX(),this.p2.getY());
     polygon.addPoint(this.p3.getX(),this.p3.getY());
     x1 = this.move[this.move.length-1].getX();
     x2 = this.p3.getX();
-
-    while(x1 < x2 ) {
+    polygon.addPoint( x2 , this.p3.getY() + factor2 );
+    polygon.addPoint( x1 , this.p3.getY() + factor2 );
+    /*while(x1 < x2 ) {
       polygon.addPoint( x2 , this.p3.getY() + factor2 );
       x2-=5;
-    }
+    }*/
      for(i = this.move.length -1 ; i >= 0; i--) {
       polygon.addPoint(  this.move[i].getX(), this.p4.getY() + ( this.p4.getY() - this.move[i].getY() )    );
     }

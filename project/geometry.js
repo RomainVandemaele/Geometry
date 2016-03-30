@@ -72,7 +72,7 @@ function calculateAngle(p1,p2,p3,proc,poly) {
   /*if( r < 0) {
     angle = Math.PI + ( Math.PI - angle) ;
   }*/
-  //test if we ust take the complement(360-angle) : if a point in the trianle is not in the polygon => take the complement
+  //test if we must take the complement(360-angle) : if a point in the trianle is not in the polygon => take the complement
   var r1 = 0.5;
   var r2 = 0.5;
   var pointInterior = new Point( (1 - Math.sqrt(r1) ) * p1.getX() + Math.sqrt(r1)*(1-r2)*p2.getX() + r2*Math.sqrt(r1)*p3.getX()  , (1 - Math.sqrt(r1) ) * p1.getY() + Math.sqrt(r1)*(1-r2)*p2.getY() + r2*Math.sqrt(r1)*p3.getY()   );
