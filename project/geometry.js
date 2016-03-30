@@ -6,6 +6,28 @@ function vectorProduct2(p1,p2) {
   return (p1.getX()*p2.getY()) - (p1.getY()*p2.getX());
 }
 
+//symetry de p par raport à la droite passant par d1 et d2
+function symetry(p,d1,d2) {
+  //this.p.println("OK M");
+  var x = p.getX();
+  //this.p.println("OK M1");
+  var y = p.getY();
+  //this.p.println("OK M2");
+  //droite d passant par P1-P2
+  var a= (d1.getY() - d2.getY())/(d1.getX() - d2.getX()) ;
+  var b= d2.getY() - a*d2.getX();
+
+  //droite d' perpendiculaire à d passant par p => droite normal
+  var a2=(-1/a),b2= y + x/a;
+
+  //p' = intersection d' et d
+  var x2=(b2-b)/(a-a2);
+  var y2= a2*x2 + b2;
+  //p'' = resultat de la symetrie
+  var x3= x + 2*(x2-x) ,y3=y+ 2*(y2-y);
+  return new Point(x3,y3);
+}
+
 function isCrossing(p1,p2,p3,p4) {
     var r = new Point(p2.getX() - p1.getX(), p2.getY() - p1.getY());
     var s = new Point(p4.getX() - p3.getX(), p4.getY() - p3.getY());

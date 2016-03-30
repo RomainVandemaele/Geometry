@@ -108,27 +108,10 @@ function ETD(center,proc) { //flat equilateral trangle
     }
     polygon.addPoint(this.p2.getX(),this.p2.getY());
     this.p.println("OK -1");
-    //for(j=this.move.length-1;j>=0;j--) {
-      //this.p.println("OK M");
-      var x = this.p3.getX();
-      //this.p.println("OK M1");
-      var y = this.p3.getY();
-      //this.p.println("OK M2");
-      //droite d passant par P1-P2
-      var a= (this.p1.getY() - this.p2.getY())/(this.p1.getX() - this.p2.getX()) ;
-      var b= this.p2.getY() - a*this.p2.getX();
-
-      //droite d' perpendiculaire à d passant par p => droite normal
-      var a2=(-1/a),b2= y + x/a;
-
-      //p' = intersection d' et d
-      var x2=(b2-b)/(a-a2);
-      var y2= a2*x2 + b2;
-      //p'' = resultat de la symetrie
-      var x3= x + 2*(x2-x) ,y3=y+ 2*(y2-y);
-      //get symetry of move by axis p1-P2
-      polygon.addPoint(x2, y2 );
-    //}
+    for(j=this.move.length-1;j>=0;j--) {
+      var p = symetry(new Point(this.move[j].getX(),this.move[j].getY()),this.p1,this.p2);
+      polygon.addPoint(p.getX(), p.getY() );
+    }
     this.p.println("OK ");
     polygon.addPoint(this.p1.getX(),this.p1.getY());
     polygons.push(polygon);

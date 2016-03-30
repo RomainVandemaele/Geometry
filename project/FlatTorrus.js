@@ -111,27 +111,31 @@ function FlatTorrus(center,proc) {
     }
     var x1 = this.move[this.move.length-1].getX();
     var x2 = this.p2.getX();
-    polygon.addPoint( x1 , this.p3.getY() + factor2 );
-    polygon.addPoint( x2 , this.p3.getY() + factor2 );
+    if(x1 < x2) {
+      polygon.addPoint( x1 , this.p2.getY() + factor1 );
+      polygon.addPoint( x2 , this.p2.getY() + factor1 );
+    }
     /*while(x1 < x2 ) {
       polygon.addPoint( x1 , this.p2.getY() + factor1);
       x1+=5;
     }*/
     polygon.addPoint(this.p2.getX(),this.p2.getY());
-    polygon.addPoint(this.p3.getX(),this.p3.getY());
+    //polygon.addPoint(this.p3.getX(),this.p3.getY());
     x1 = this.move[this.move.length-1].getX();
     x2 = this.p3.getX();
-    polygon.addPoint( x2 , this.p3.getY() + factor2 );
-    polygon.addPoint( x1 , this.p3.getY() + factor2 );
+    if(x1 < x2) {
+      polygon.addPoint( x2 , this.p3.getY() + factor2 - HEIGHT );
+      polygon.addPoint( x1 , this.p3.getY() + factor2 - HEIGHT );
+    }
     /*while(x1 < x2 ) {
       polygon.addPoint( x2 , this.p3.getY() + factor2 );
       x2-=5;
     }*/
      for(i = this.move.length -1 ; i >= 0; i--) {
-      polygon.addPoint(  this.move[i].getX(), this.p4.getY() + ( this.p4.getY() - this.move[i].getY() )    );
+      polygon.addPoint(  this.move[i].getX(),  - HEIGHT + this.p4.getY() + ( this.p4.getY() - this.move[i].getY() )    );
     }
 
-    polygon.addPoint(this.p4.getX(),this.p4.getY());
+    //polygon.addPoint(this.p4.getX(),this.p4.getY());
     polygon.reduce(2.5);
     var polygons = [];
     polygons.push(polygon);

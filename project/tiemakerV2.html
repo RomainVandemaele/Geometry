@@ -54,9 +54,9 @@ var TILING_MODE = MOVING;
 
 function init(proc) {
     //tilemaker = new KleinBottle(new Point(CANVAS_WIDTH/2 - 300,CANVAS_HEIGHT/2),proc);
-    tilemaker = new ETD(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2-100),proc);
-    tilemaker.draw();
-    /*var mode = prompt("Choose mode :\n1. Cutting\n2.Tiling ","1")
+    //tilemaker = new ETD(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2-100),proc);
+    //tilemaker.draw();
+    var mode = prompt("Choose mode :\n1. Cutting\n2.Tiling ","1")
     if(mode == 1) {
       var msg = "Choose you tilemaker :\n1. Flat Rectangle\n";
       msg += "2. Equilateral triangle\n";
@@ -100,7 +100,7 @@ function init(proc) {
       MODE = FOLDING;
     }else if(mode==2) {
       MODE = TILING;
-    }*/
+    }
 
 }
 
@@ -210,13 +210,13 @@ sketch.attachFunction = function(processing) {
 
   	if (processing.keyCode == processing.ENTER) {
   		if(MODE == FOLDING &&  tilemaker.hasEnded()) {
-        //processing.background(155); //clean
+        processing.background(155); //clean
         var polys = tilemaker.drawUnFolded();
         //polygons.push(polys);
         for( j = 0; j<polys.length;j++) {
           polygons.push(polys[j]);
         }
-        //MODE = TILING;
+        MODE = TILING;
       }
     }else if (processing.key == 116) { //key = t(est)
       if(MODE == TILING) {
