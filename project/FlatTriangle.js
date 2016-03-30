@@ -117,16 +117,9 @@ function ETD(center,proc) { //flat equilateral trangle
       //droite d passant par P1-P2
       var a= (this.p1.getY() - this.p2.getY())/(this.p1.getX() - this.p2.getX()) ;
       var b= this.p2.getY() - a*this.p2.getX();
-      this.p.println(a+" , "+b);
-      this.p.ellipse(this.p1.getX()+20,a*(this.p1.getX()+20)+b,pointSize,pointSize);
 
       //droite d' perpendiculaire à d passant par p => droite normal
       var a2=(-1/a),b2= y + x/a;
-      //this.p.ellipse(0,b2,pointSize,pointSize);
-      //this.p.fill(0,255,0);
-      //this.p.ellipse(this.p1.getX()+20,a*(this.p1.getX()+20)+b,pointSize,pointSize);
-      //this.p.fill(100);
-      //this.p.println(a2+" , "+b2);
 
       //p' = intersection d' et d
       var x2=(b2-b)/(a-a2);
