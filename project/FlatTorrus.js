@@ -1,6 +1,6 @@
 function FlatTorrus(center,proc) {
-  var WIDTH =  800;
-  var HEIGHT = 225;
+  var WIDTH =  800; //diff
+  var HEIGHT = 225; //diff
 
   this.p1 = new Point(center.getX() - WIDTH/2 , center.getY() - HEIGHT/2 );
   this.p2 = new Point(center.getX() + WIDTH/2 , center.getY() - HEIGHT/2 );
@@ -8,24 +8,24 @@ function FlatTorrus(center,proc) {
   this.p4 = new Point(center.getX() - WIDTH/2 , center.getY() + HEIGHT/2 );
 
 
-
   this.move = [];
   this.endMove = false;
   this.p = proc;
   this.c = center;
 
+  //indicate if the cut has begun
   this.hasStarted = function() {
     return this.move.length!=0;
   }
 
+  //indicate if the cut is over
   this.hasEnded = function() {
     return this.endMove;
   }
 
   this.begin = function(x,y) {
-    //test if point on P1-14
-
-    if( math.abs(vectorProduct(this.p1.getX(),this.p1.getY(),this.p4.getX(),this.p4.getY(),x,y)) < 1500  && this.p1.getY() <= y && this.p4.getY() >= y  ) {
+    //test if point on P1-14 : the edge to begin the cut
+    if( math.abs(vectorProduct(this.p1.getX(),this.p1.getY(),this.p4.getX(),this.p4.getY(),x,y)) < LIMIT  && this.p1.getY() <= y && this.p4.getY() >= y  ) {
       this.move.push(new Point(this.p1.getX(),y));
       this.p.fill(255,0,0);
       this.p.ellipse(this.p1.getX(),y,pointSize,pointSize);
@@ -34,10 +34,11 @@ function FlatTorrus(center,proc) {
 
   }
 
+  //add a point of the cut
   this.addPoint =function(x,y) {
-    //test if point is ntérior
+    //test if point is intérior
     if(this.p1.getY() <= y && this.p4.getY() >= y && this.p1.getX() <= x && this.p2.getX() >= x) {
-      if(!this.crossed(x,y)) {
+      if(!this.crossed(x,y)) {   //Check is last added segment intersects another segment
         if( math.abs(vectorProduct(this.p2.getX(),this.p2.getY(),this.p3.getX(),this.p3.getY(),x,y)) < 1500  ) { //other "face"
           x = this.p2.getX();
           this.p.stroke(255,0,0);
@@ -54,16 +55,16 @@ function FlatTorrus(center,proc) {
         this.move.push(new Point(x,y));
         this.p.line(x,y,this.move[this.move.length-2].getX() ,this.move[this.move.length-2].getY());
         this.p.stroke(0,0,0);
-      }else {
+      }else { //if there is a crossing inthe cu the last 3 moves are removed
         for(i = 0;i<3;i++) {
           this.move.pop();
         }
         this.draw();
       }
-      //this.p.ellipse(x,y,pointSize/2,pointSize/2);
     }
   }
-  //Check is last added segement intersects another segment
+
+  //Check is last added segment intersects another segment of the cut
   this.crossed = function(x,y) {
     var p = new Point(x,y);
     var res = false;
@@ -72,9 +73,8 @@ function FlatTorrus(center,proc) {
     }
     return res;
   }
-
+  //reset the cut by removing all existing recording of it
   this.resetMove = function() {
-    //for(int i = 0;i++)
     this.move = [];
     this.endMove = false;
     this.draw();
@@ -96,50 +96,44 @@ function FlatTorrus(center,proc) {
   }
 
    this.drawUnFolded = function() {
-    this.p.background(155);
-    var factor1 = -HEIGHT;
-    var factor2 = 0;
-    if(this.move[this.move.length-1].getY() == this.p1.getY()) { //cut by the up line
-      factor1 = 0;
-      factor2 = HEIGHT;
-    }
+     this.p.background(155);
+     //cut by bottom line
+     var factor1 = -HEIGHT;
+     var factor2 = 0;
+     if(this.move[this.move.length-1].getY() == this.p1.getY()) { //cut by the above line
+       factor1 = 0;
+       factor2 = HEIGHT;
+     }
 
-    var polygon = new Polygon(this.p,this.c);
-    polygon.addPoint(this.p1.getX(),this.p1.getY());
-    for(i = 0 ; i < this.move.length; i++) {
-      polygon.addPoint(  this.move[i].getX(), this.p1.getY() - (this.move[i].getY() - this.p1.getY() )    );
-    }
-    var x1 = this.move[this.move.length-1].getX();
-    var x2 = this.p2.getX();
-    if(x1 < x2) {
-      polygon.addPoint( x1 , this.p2.getY() + factor1 );
-      polygon.addPoint( x2 , this.p2.getY() + factor1 );
-    }
-    /*while(x1 < x2 ) {
-      polygon.addPoint( x1 , this.p2.getY() + factor1);
-      x1+=5;
-    }*/
-    polygon.addPoint(this.p2.getX(),this.p2.getY());
-    //polygon.addPoint(this.p3.getX(),this.p3.getY());
-    x1 = this.move[this.move.length-1].getX();
-    x2 = this.p3.getX();
-    if(x1 < x2) {
-      polygon.addPoint( x2 , this.p3.getY() + factor2 - HEIGHT );
-      polygon.addPoint( x1 , this.p3.getY() + factor2 - HEIGHT );
-    }
-    /*while(x1 < x2 ) {
-      polygon.addPoint( x2 , this.p3.getY() + factor2 );
-      x2-=5;
-    }*/
+     var polygon = new Polygon(this.p,this.c);
+     polygon.addPoint(this.p1.getX(),this.p1.getY());
+     //add unfoding from above
+     for(i = 0 ; i < this.move.length; i++) {
+       polygon.addPoint(  this.move[i].getX(), this.p1.getY() - (this.move[i].getY() - this.p1.getY() )    );
+     }
+     var x1 = this.move[this.move.length-1].getX();
+     var x2 = this.p2.getX();
+     if(x1 < x2) { //cut by above or bottom face
+       polygon.addPoint( x1 , this.p2.getY() + factor1 );
+       polygon.addPoint( x2 , this.p2.getY() + factor1 );
+     }
+
+     polygon.addPoint(this.p2.getX(),this.p2.getY());
+     x1 = this.move[this.move.length-1].getX();
+     x2 = this.p3.getX();
+     if(x1 < x2) {
+       polygon.addPoint( x2 , this.p3.getY() + factor2 - HEIGHT );
+       polygon.addPoint( x1 , this.p3.getY() + factor2 - HEIGHT );
+     }
+     //add unfoding from bottom
      for(i = this.move.length -1 ; i >= 0; i--) {
-      polygon.addPoint(  this.move[i].getX(),  - HEIGHT + this.p4.getY() + ( this.p4.getY() - this.move[i].getY() )    );
-    }
+       polygon.addPoint(  this.move[i].getX(),   this.p4.getY() + ( this.p4.getY() - this.move[i].getY() ) -HEIGHT   );
+     }
 
-    //polygon.addPoint(this.p4.getX(),this.p4.getY());
-    polygon.reduce(2.5);
-    var polygons = [];
-    polygons.push(polygon);
-    return polygons;
+     polygon.reduce(2.5);
+     var polygons = [];
+     polygons.push(polygon);
+     return polygons;
   }
 
 }

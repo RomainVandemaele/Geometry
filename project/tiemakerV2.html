@@ -32,30 +32,28 @@ Part 2 :
 
 */
 
-var tilemaker;
-var polygons = [];
-var selectedPolygon = null;
-var selectedPoint =  null;
+var tilemaker; //from that will be cut in a polygon that will served as base for tiling
+var polygons = []; //set of poygons used for tiling(several copies of same polygon)
+var selectedPolygon = null; //a polygon selected can be moved or rotated
+var selectedPoint =  null; //point that validate the tiling
 
 var pointSize = 8;
+var LIMIT = 1250;
 var CANVAS_WIDTH = 1500;
 var CANVAS_HEIGHT = 750;
 
-var INIT = 0;
-var FOLDING = 1;
+var INIT = 0; //choose of mode and tilemaker
+var FOLDING = 1; //cutting to create a development
 var TILING = 2;
 var MODE = FOLDING;
 
 var MOVING = 0;
 var ROTATING = 1;
-var TILING_MODE = MOVING;
+var TILING_MODE = MOVING; //when tiling a polygon  can either be moved or be rotated
 
 
 
 function init(proc) {
-    //tilemaker = new KleinBottle(new Point(CANVAS_WIDTH/2 - 300,CANVAS_HEIGHT/2),proc);
-    //tilemaker = new ETD(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2-100),proc);
-    //tilemaker.draw();
     var mode = prompt("Choose mode :\n1. Cutting\n2.Tiling ","1")
     if(mode == 1) {
       var msg = "Choose you tilemaker :\n1. Flat Rectangle\n";
@@ -94,8 +92,6 @@ function init(proc) {
         tilemaker = new FlatTorrus(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2-100),proc);
         break;
       }
-
-      //initTilemaker(choice);
       tilemaker.draw();
       MODE = FOLDING;
     }else if(mode==2) {
@@ -104,24 +100,7 @@ function init(proc) {
 
 }
 
-function initTilemaker(choice) {
-  switch(choice) {
-    case "1":
-        window.alert("cas 1");
-        tilemaker = new FlatRectangle(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2-100),proc);
-        window.alert("cas 1 end");
-        break;
-    case "2":
-        window.alert("cas 2");
-        tilemaker = new ETD(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2-100),proc);
-        window.alert("cas 2 end");
-        break;
-    }
-}
 
-
-
-// Attaching js code to the canvas by using a sketch object
 
 var sketch = new Processing.Sketch();
 
@@ -132,22 +111,17 @@ sketch.attachFunction = function(processing) {
     processing.fill(100);
     processing.size(CANVAS_WIDTH, CANVAS_HEIGHT);
     processing.fill(255);
-    //processing.frameRate(200);
     init(processing);
   };
 
 
 
-
+  /**Redraw all polygons automatically**/
   processing.draw = function() {
     if(MODE == TILING  ) {
-
       processing.background(155);
       for(j=polygons.length-1;j>=0;j--) {
-        //processing.println("DRAW POLYGON "+j);
         polygons[j].draw();
-        //polygons[j].displayCenter();
-        //processing.println("DRAWED POLYGON "+j);
       }
       if(selectedPoint!=null) {
         processing.ellipse(selectedPoint.getX(), selectedPoint.getY(),pointSize,pointSize);
@@ -159,83 +133,47 @@ sketch.attachFunction = function(processing) {
 
   // mouse event
   processing.mouseDragged = function() {
-    if(MODE== FOLDING &&  tilemaker.hasStarted() && !tilemaker.hasEnded()) {
-      //tilemaker.addPoint(processing.mouseX,processing.mouseY);
-    }else if(MODE==TILING && selectedPolygon!=null ) { //&& polygon.isInPolygon(
+    if(MODE==TILING && selectedPolygon!=null ) {
       if(TILING_MODE == MOVING) {
-        selectedPolygon.move(processing.mouseX - processing.pmouseX, processing.mouseY - processing.pmouseY,true);
-        //processing.println("test overlapping 1");
-        var test = polygonsCrossing(selectedPolygon,polygons);
-        //processing.println("test overlapping 2 ");
-        if(test==true) {
-          selectedPolygon.move( - (processing.mouseX - processing.pmouseX),- (processing.mouseY - processing.pmouseY),true);
+        selectedPolygon.move(processing.mouseX - processing.pmouseX, processing.mouseY - processing.pmouseY);
+        if(polygonsCrossing(selectedPolygon,polygons)) { //cancel the move if it create an overlapping
+          selectedPolygon.move( - (processing.mouseX - processing.pmouseX),- (processing.mouseY - processing.pmouseY));
         }
       }else if(TILING_MODE == ROTATING) {
-        //processing.println("ROTATE");
         selectedPolygon.rotate(1,true);
-        var test = polygonsCrossing(selectedPolygon,polygons);
-        if(test==true) {
-          selectedPolygon.rotate(-1,true);
+        if(polygonsCrossing(selectedPolygon,polygons)) {
+          selectedPolygon.rotate(-1);
         }
       }
-
     }
   };
 
   processing.keyPressed = function() {
-    processing.println(processing.key);
-
-    if(MODE == INIT) {
-
-      var code = processing.key - 48;
-      if(code >0 && code <5 ) {
-        if(code==1) {
-          //processing.println("Rectangle");
-          tilemaker  = new FlatRectangle(new Point(CANVAS_WIDTH/2 - 300,CANVAS_HEIGHT/2),processing);
-           //processing.println("Completed");
-        }else if(code==2) {
-          tilemaker  = new ETD(new Point(CANVAS_WIDTH/2 - 300,CANVAS_HEIGHT/2),processing);
-        }else if(code==3) {
-          tilemaker  = new FlatTorrus(new Point(CANVAS_WIDTH/2 - 300,CANVAS_HEIGHT/2),processing);
-        }else if(code==4) {
-          tilemaker  = new KleinBottle(new Point(CANVAS_WIDTH/2 - 300,CANVAS_HEIGHT/2),processing);
-        }else if(code==5) {
-          tilemaker = new Tetrahedra(new Point(CANVAS_WIDTH/2,CANVAS_HEIGHT/2),proc);
-        }
-        MODE = FOLDING;
-        tilemaker.draw();
-      }
-    }
-
-
-  	if (processing.keyCode == processing.ENTER) {
+    if (processing.keyCode == processing.ENTER) {
   		if(MODE == FOLDING &&  tilemaker.hasEnded()) {
         processing.background(155); //clean
-        var polys = tilemaker.drawUnFolded();
-        //polygons.push(polys);
+        var polys = tilemaker.drawUnFolded(); //unfold the tilemaker inta a polygon
         for( j = 0; j<polys.length;j++) {
           polygons.push(polys[j]);
         }
         MODE = TILING;
       }
-    }else if (processing.key == 116) { //key = t(est)
+    }else if (processing.key == 116) { //key = t(est) of the tiling
       if(MODE == TILING) {
-        processing.println("TEST");
         var res = false;
         var i   = 0;
+        //test if a point of the polygon i from a 360 degre by taking other poygons into account
         while(!res && i <polygons.length) {
           res = tilePlane(i,polygons,processing);
           i++;
         }
-        //var res = tilePlane(0,polygons,processing);
         if(res) {
           window.alert("The tiling is correct");
         }else {
           window.alert("Incorrect tiling");
         }
-        processing.println(res);
       }
-    }else if (processing.key == 115) { //key = "s"witch
+    }else if (processing.key == 115) { //key = "s"witch mode of tiling
       if(MODE == TILING) {
         TILING_MODE = (TILING_MODE + 1 ) %2
       }
@@ -244,40 +182,39 @@ sketch.attachFunction = function(processing) {
         tilemaker.resetMove();
         processing.background(155);
         init(processing);
-        //MODE =INIT;
-      }else if(MODE == TILING) { //TODO : change if better usage found
+      }else if(MODE == TILING) { //TILING reset to FOLDING
         MODE = FOLDING;
         tilemaker.resetMove();
         polygons = [];
+      }
+    }else if (processing.key == 127) { //key == delete
+      if(MODE == TILING && selectedPolygon!=null && polygons.length > 1) {
+        var index = polygons.indexOf(selectedPolygon);
+        polygons.splice(index,1);
+        selectedPolygon = null;
       }
     }
 
   };
 
   processing.mousePressed = function () {
-    //processing.println("INPUT");
     if (processing.mouseButton == processing.LEFT) {
-      //processing.println("CLICK "+MODE);
       if(MODE == FOLDING ) { //folding already begined
-        //processing.println("PRE_BEGIN");
         if(!tilemaker.hasStarted()) {
-          //processing.println("BEGIN");
+          //begin the folding : test if point is on a edge
           tilemaker.begin(processing.mouseX,processing.mouseY);
         }else if(!tilemaker.hasEnded()){
-          //processing.println("ADD POINT");
+          //while the folding is not finshed, we continue the cut by adding a point
           tilemaker.addPoint(processing.mouseX,processing.mouseY);
         }
-
       }else if(MODE == TILING) {
-        //processing.println("TILING");
         var i = 0;
         var found = false;
+        //look if the click is on a polygon
         while(i < polygons.length && !found) {
-          //processing.println("SEARCH POLYGON "+i);
           if(polygons[i].isInPolygon(processing.mouseX,processing.mouseY)) {
-            //processing.println("FOUND POLYGON "+i);
             if(selectedPolygon == polygons[i] || selectedPolygon == null) {
-              polygons[i].select(true);
+              polygons[i].select();
               if(polygons[i].isSelected()) {
                 selectedPolygon = polygons[i];
               }else {
@@ -289,22 +226,16 @@ sketch.attachFunction = function(processing) {
           i++
         }
       }
-      //processing.println("END");
-    }else if(processing.mouseButton == processing.RIGHT) {
+    }else if(processing.mouseButton == processing.RIGHT) { //copy the selected polygon
         if(MODE == TILING && selectedPolygon!=null) {
-          //processing.println("OK");
-          var polys = selectedPolygon.copy(true);
-          for(var k=0;k<polys.length;k++) {
-              polygons.push(polys[k]);
-              for(var i=0;i<polygons.length-1;i++) {
-                while(polys[k].isOverlapping(polygons[i])) {
-                  polys[k].move(10,10);
-                }
-              }
-
+          //var polys = selectedPolygon.copy();
+          polygons.push(selectedPolygon.copy());
+          for(var i=0;i<polygons.length-1;i++) {
+            //move the copy if i verlaps another polygon
+            while(polygons[polygons.length-1].isOverlapping(polygons[i])) {
+              polygons[polygons.length-1].move(10,10);
+            }
           }
-          //processing.println("POLYGON CREATED : "+polygons[polygons.length - 1].getLenght());
-          //polygons[polygons.length-1].draw();
         }
     }
 

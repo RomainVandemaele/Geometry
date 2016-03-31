@@ -10,9 +10,9 @@ function Tetrahedra(center,proc) { //flat equilateral trangle
   this.p3 = new Point(center.getX() + WIDTH/2 , center.getY() + HEIGHT/2 );
 
 
-  this.p12 = bissectrice(this.p1,this.p2,proc);
-  this.p23 = bissectrice(this.p2,this.p3,proc);
-  this.p31 = bissectrice(this.p3,this.p1,proc);
+  this.p12 = bissectrix(this.p1,this.p2,proc);
+  this.p23 = bissectrix(this.p2,this.p3,proc);
+  this.p31 = bissectrix(this.p3,this.p1,proc);
 
   face1 = new Face(this.p12,this.p2,this.p23,proc); //above face
   face2 = new Face(this.p1,this.p12,this.p31,proc); //lower left
