@@ -51,7 +51,7 @@ var MOVING = 0;
 var ROTATING = 1;
 var TILING_MODE = MOVING; //when tiling a polygon  can either be moved or be rotated
 
-
+var tetrahedra = false;
 
 function init(proc) {
       var msg = "Choose you tilemaker :\n1. Flat Rectangle\n";
@@ -59,35 +59,28 @@ function init(proc) {
       msg += "3. isoceles right triangle\n";
       msg += "4. half equilateral triangle\n";
       msg += "5. Flat Torrus\n";
-      msg += "6. Flat klein bottle\n";
-      msg += "7. Tetrahedra\n";
-      msg += "8. Real projective palne\n";
-      var choice = prompt(msg, "7");
-
+      msg += "6. Tetrahedra\n";
+      var choice = prompt(msg, "6");
+      confirm("Mode cutting :\nCut through the face(s) of a tilemaker until you can unfold it(indicated by a red line) and then press enter");
       switch(choice) {
         case "1":
-        tilemaker = new FlatRectangle(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2-100),proc);
+        tilemaker = new FlatRectangle(new Point(CANVAS_WIDTH/2,CANVAS_HEIGHT/2),proc);
         break;
         case "2":
-        tilemaker = new ETD(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2-100),proc);
+        tilemaker = new ETD(new Point(CANVAS_WIDTH/2,CANVAS_HEIGHT/2),proc);
         break;
         case "3":
-        tilemaker = new IRTD(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2-100),proc);
+        tilemaker = new IRTD(new Point(CANVAS_WIDTH/2,CANVAS_HEIGHT/2),proc);
         break;
         case "4":
-        tilemaker = new HETD(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2-100),proc);
+        tilemaker = new HETD(new Point(CANVAS_WIDTH/2,CANVAS_HEIGHT/2),proc);
         break;
         case "5":
-        tilemaker = new FlatTorrus(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2-100),proc);
+        tilemaker = new FlatTorrus(new Point(CANVAS_WIDTH/2,CANVAS_HEIGHT/2),proc);
         break;
         case "6":
-        tilemaker = new KleinBottle(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2-100),proc);
-        break;
-        case "7":
-        tilemaker = new Tetrahedra(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2-100),proc);
-        break;
-        case "8":
-        tilemaker = new FlatTorrus(new Point(CANVAS_WIDTH/2-300,CANVAS_HEIGHT/2-100),proc);
+        tilemaker = new Tetrahedra(new Point(CANVAS_WIDTH/2,CANVAS_HEIGHT/2),proc);
+        tetrahedra = true;
         break;
       }
       tilemaker.draw();
@@ -144,13 +137,16 @@ sketch.attachFunction = function(processing) {
 
   processing.keyPressed = function() {
     if (processing.keyCode == processing.ENTER) {
-  		if(MODE == FOLDING &&  tilemaker.hasEnded()) {
-        processing.background(155); //clean
+  		if(MODE == FOLDING &&  (tilemaker.hasEnded() || tetrahedra) ) {
         var polys = tilemaker.drawUnFolded(); //unfold the tilemaker inta a polygon
-        for( j = 0; j<polys.length;j++) {
-          polygons.push(polys[j]);
+        if(polys!=null) {
+          for( j = 0; j<polys.length;j++) {
+            polygons.push(polys[j]);
+          }
+          processing.background(155); //clean
+          confirm("Mode tiling\nYou have to tile the plane with the polygon and its copies. There is several tools at you disposition like moving and rotation.\n Controls :\nleft click : (de)select a polygone\nright click : copy the selected polygon\ns : switch between moving and rotating\nr : go back to the folding mode");
+          MODE = TILING;
         }
-        MODE = TILING;
       }
     }else if (processing.key == 116) { //key = t(est) of the tiling
       if(MODE == TILING) {

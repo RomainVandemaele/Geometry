@@ -34,13 +34,6 @@ function Face(p1,p2,p3,proc) {
   this.getRightFace = function() {return this.rf;}
   this.getBottomFace = function() {return this.bf;}
 
-  this.printCenter = function() {
-    this.p.fill(255,0,0);
-    var deltaX = this.point[2].getX() -  this.point[0].getX();
-    var deltaY = this.point[1].getY() -  this.point[0].getY();
-    this.p.ellipse(this.point[0].getX() + deltaX/2, this.point[0].getY() + deltaY/2 ,pointSize,pointSize);
-    this.p.fill(0,0,0);
-  }
 
   this.getMove = function() {
     return this.moves;
