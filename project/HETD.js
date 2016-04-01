@@ -1,4 +1,4 @@
-function HETD(center,proc) { //flat equilateral trangle
+function HETD(center,proc) { //flat half equilateral triangle
   var WIDTH =  300;
   var HEIGHT = (math.sqrt(3.0)/2.0)*WIDTH;
 
@@ -20,14 +20,9 @@ function HETD(center,proc) { //flat equilateral trangle
     return this.endMove;
   }
 
+  //Test if the point is an the beginning edge of a cut
   this.begin = function(x,y) {
-    //test if point on P1-P3
-    /*if(isInTriangle(this.p1,this.p3,this.p2,x,y)) {
-      this.p.println("Is in");
-    }else {
-      this.p.println("Is out");
-    }*/
-    if( math.abs(vectorProduct(this.p1.getX(),this.p1.getY(),this.p3.getX(),this.p3.getY(),x,y)) < 1500  && this.p1.getY() <= y && this.p3.getY() >= y  ) {
+    if( math.abs(vectorProduct(this.p1.getX(),this.p1.getY(),this.p3.getX(),this.p3.getY(),x,y)) < LIMIT  && this.p1.getY() <= y && this.p3.getY() >= y  ) {
       this.move.push(new Point(x,y));
       this.p.fill(255,0,0);
       this.p.ellipse(x,y,pointSize,pointSize);
@@ -35,18 +30,16 @@ function HETD(center,proc) { //flat equilateral trangle
     }
 
   }
-
+  //advance in the cut with a point
   this.addPoint =function(x,y) {
-    //test if point is ntérior
-    this.p.println("ADD POINT");
+    //test if point is interior
     if(isInTriangle(this.p1,this.p2,this.p3,x,y)) {
-      this.p.println("INTERIOR POINT");
       if(!this.crossed(x,y)) {
-        if( math.abs(vectorProduct(this.p1.getX(),this.p1.getY(),this.p2.getX(),this.p2.getY(),x,y)) < 1250  ) { //other "face"
-          //x = this.p2.getX();
+        //end cut if arrive at an edge
+        if( math.abs(vectorProduct(this.p1.getX(),this.p1.getY(),this.p2.getX(),this.p2.getY(),x,y)) < LIMIT  ) { //other "face"
           this.p.stroke(255,0,0);
           this.endMove = true;
-        }else if(math.abs(vectorProduct(this.p2.getX(),this.p2.getY(),this.p3.getX(),this.p3.getY(),x,y)) < 1000 )  {
+        }else if(math.abs(vectorProduct(this.p2.getX(),this.p2.getY(),this.p3.getX(),this.p3.getY(),x,y)) < LIMIT )  {
           y = this.p2.getY();
           this.p.stroke(255,0,0);
           this.endMove = true;
@@ -55,19 +48,18 @@ function HETD(center,proc) { //flat equilateral trangle
         this.p.line(x,y,this.move[this.move.length-2].getX() ,this.move[this.move.length-2].getY());
         this.p.stroke(0,0,0);
       }else {
-        for(i = 0;i<3;i++) {
+        //if intersections detected, the 3 last moves are removed
           this.move.pop();
-        }
         this.draw();
       }
     }
   }
 
-  //Check is last added segement intersects another segment
+  //Check is last added segemnt intersects another segment
   this.crossed = function(x,y) {
     var p = new Point(x,y);
     var res = false;
-    for(i=0;i< this.move.length -3; i++) {
+    for(i=0;i<= this.move.length -3; i++) {
       res = isCrossing( this.move[i], this.move[i+1] ,this.move[this.move.length - 1],p) || res ;
     }
     return res;
@@ -92,52 +84,26 @@ function HETD(center,proc) { //flat equilateral trangle
     }
   }
 
+  //Create unfolded polygon which is a development
+  //By unfolding with P2-P3 and P1-P2
    this.drawUnFolded = function() {
-    this.p.background(155);
     var polygons = [];
     var polygon = new Polygon(this.p,this.c);
-    var polygon2 = new Polygon(this.p,this.c);
-
-    polygon2.addPoint(this.p1.getX(),this.p1.getY());
-    for(i = 0 ; i < this.move.length; i++) {
-      polygon2.addPoint(  this.move[i].getX(), this.p1.getY() - (this.move[i].getY() - this.p1.getY() )    );
-    }
-
-
-    if(this.move[this.move.length-1].getY() == this.p2.getY()) {
-      var x1 = this.move[this.move.length-1].getX();
-      var x2 = this.p2.getX();
-      polygon2.addPoint( x1 , this.p1.getY() - (this.p2.getY() - this.p1.getY())   );
-      polygon2.addPoint( x2 , this.p1.getY() - (this.p2.getY() - this.p1.getY()) );
-
-    }
-
-
-    //polygon2.addPoint(this.p1.getX(),this.p1.getY());
-    polygon2.reduce(2);
-    polygons.push(polygon2);
-    polygon.addPoint(this.p1.getX(),this.p1.getY());
-    polygon.addPoint(this.p2.getX(),this.p2.getY());
-
-    for(i = this.move.length -1 ; i >= 0; i--) {
-      polygon.addPoint(  this.move[i].getX(), this.p2.getY() + ( this.p2.getY() - this.move[i].getY() )    );
-    }
-
     polygon.addPoint(this.p3.getX(),this.p3.getY());
-    polygon.reduce(2);
-    polygon.setLinkedPolygon(polygon2);
-    polygon.move(0,2);
-    polygon2.setLinkedPolygon(polygon);
+    //P2-P3(Bottom) part
+    for(var i=0;i<this.move.length;i++) {
+      polygon.addPoint(this.move[i].getX(), this.move[i].getY() + 2*(this.p3.getY() - this.move[i].getY()) );
+    }
+    polygon.addPoint(this.p2.getX(),this.p2.getY());
+    //P2-P1(right) part by symettry of move on it
+    for(j=this.move.length-1;j>=0;j--) {
+      var p = symetry(new Point(this.move[j].getX(),this.move[j].getY()),this.p1,this.p2);
+      polygon.addPoint(p.getX(), p.getY() );
+    }
+    polygon.addPoint(this.p1.getX(),this.p1.getY());
     polygons.push(polygon);
     return polygons;
 
   }
-
-  this.printAngle = function() {
-    this.p.println((calculateAngle(this.p1,this.p2,this.p3)/Math.PI)*180 );
-    this.p.println(calculateAngle(this.p2,this.p3,this.p1));
-    this.p.println(calculateAngle(this.p3,this.p1,this.p2));
-  }
-
 
 }

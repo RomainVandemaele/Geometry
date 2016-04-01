@@ -1,5 +1,3 @@
-var LIMIT = 1250;
-
 
 function Tetrahedra(center,proc) { //flat equilateral trangle
   var WIDTH =  500;
@@ -55,12 +53,10 @@ function Tetrahedra(center,proc) { //flat equilateral trangle
 
   this.begin = function(x,y) {
     //test if point on P1-P3
-    this.p.println("BEGIN");
     var i=0;
     while(i<this.faces.length) {
       //if(i!=2) //bottom face
       if(this.faces[i].begin(x,y) && i!=2) {
-        this.p.println("FACE "+i);
         this.currentFace = this.faces[i];
         this.orderFace.push(this.faces[i]);
         this.move.push(new Point(x,y));
@@ -75,33 +71,27 @@ function Tetrahedra(center,proc) { //flat equilateral trangle
   }
 
   this.addPoint =function(x,y) {
-    //test if point is ntérior
-    //this.p.println(x+","+y);
+    //test if point is interior
     if(this.currentFace.isIn(x,y)) {
-      //this.p.println("ADD POINT");
-      //this.p.println("INTERIOR POINT");
       if(!this.crossed(x,y)) {
         var np=null;
         this.currentFace.addPoint(x,y);
         if( this.currentFace.end(x,y) ) {
-          //x = this.p2.getX();
-          //this.currentFace.setFolded(); done in class
           var nextFace = this.currentFace.nextFace();
           if(!nextFace.isFolded()) {
             np = this.currentFace.nextPoint(x,y);
             this.currentFace = nextFace;
-            this.p.println("CHANGE FACE");
             this.orderFace.push(nextFace);
+            this.endMove = true;
+            this.p.println("END");
           }else {
             this.endMove = true;
-            this.p.println("END MOVE");
           }
         }
         this.move.push(new Point(x,y));
 
         this.p.line(x,y,this.move[this.move.length-2].getX() ,this.move[this.move.length-2].getY());
         if(np!=null) {
-          this.p.println("ADD NP");
           this.move.push(new Point(np.getX(),np.getY()));
           this.currentFace.addPoint(np.getX(),np.getY());
           //this.p.line(x,y,np.getX() ,np.getY());
@@ -109,9 +99,7 @@ function Tetrahedra(center,proc) { //flat equilateral trangle
         //this.p.line(x,y,this.move[this.move.length-2].getX() ,this.move[this.move.length-2].getY());
         this.p.stroke(0,0,0);
       }else {
-        for(i = 0;i<1;i++) {
           this.move.pop();
-        }
         this.draw();
       }
     }
@@ -121,7 +109,7 @@ function Tetrahedra(center,proc) { //flat equilateral trangle
   this.crossed = function(x,y) {
     var p = new Point(x,y);
     var res = false;
-    for(i=0;i< this.move.length -3; i++) {
+    for(i=0;i<= this.move.length -3; i++) {
       res = isCrossing( this.move[i], this.move[i+1] ,this.move[this.move.length - 1],p) || res ;
     }
     return res;
@@ -154,9 +142,6 @@ function Tetrahedra(center,proc) { //flat equilateral trangle
     this.p.line(this.p12.getX(), this.p12.getY(), this.p31.getX(), this.p31.getY());
     this.p.line(this.p31.getX(), this.p31.getY(), this.p23.getX(), this.p23.getY());
 
-    /*for(var j=0;j<4;j++) {
-      this.faces[j].printCenter();
-    }*/
 
     for(i=0;i< this.move.length -1; i++) {
       this.p.line(this.move[i].getX(), this.move[i].getY() , this.move[i+1].getX(), this.move[i+1].getY() );
@@ -164,48 +149,58 @@ function Tetrahedra(center,proc) { //flat equilateral trangle
   }
 
    this.drawUnFolded = function() {
+
      this.p.fill(100);
      var polygons = [];
-     //case where all face were folded except the bottom face
-     if (this.faces[0].isFolded() && this.faces[1].isFolded() && !this.faces[2].isFolded()
-    && this.faces[3].isFolded()) {
-      //main part
+     if(this.orderFace.length == 2 && this.orderFace[1] == this.faces[2] ) { //add verif endFace = bottom
        var polygon = new Polygon(this.p,this.c);
-       var polygon2 = [ new Polygon(this.p,this.c),new Polygon(this.p,this.c),new Polygon(this.p,this.c) ];
-       //polygon.addPoint(this.p12);
-       for(var i=0;i<this.orderFace.length;i++) {
-         var face = this.orderFace[i];
 
-         //this.p.println(ps.getX()+" "+ps.getY())
-         //polygon.addPoint(p.getX(),p.getY());
-         var move = face.getMove();
-         this.p.println("OK : "+move.length);
-         for(var j=0;j<move.length;j++) {
-           polygon.addPoint(move[j].getX(),move[j].getY());
-           polygon2[i].addPoint(move[j].getX(),move[j].getY());
+       //this.p.println("OK");
+       var move = this.orderFace[0].getMove();
+       //this.p.println("OK");
+       var be = this.orderFace[0].getBegingEdge();
+       //this.p.println("OK");
+       var eqe = this.orderFace[0].getEquivalentEdge(be);
+       var face = this.orderFace[0].getEquivalentFace(be);
+       var points = face.getPoints();
+       var medianPoint = this.p31;
+       if(be.getP2().isEqual(this.p12) || eqe.getP2().isEqual(this.p12) || be.getP1().isEqual(this.p12) || eqe.getP1().isEqual(this.p12) ) {
+         medianPoint = this.p12;
+       }else if(be.getP2().isEqual(this.p23) || eqe.getP2().isEqual(this.p23) || be.getP1().isEqual(this.p23) || eqe.getP1().isEqual(this.p23) ) {
+         medianPoint = this.p23;
+       }
+       var extremePoint = this.p3;
+       if(medianPoint.isEqual(this.p23)) {
+         extremePoint = this.p1;
+       }else if(medianPoint.isEqual(this.p31)) {
+         extremePoint = this.p2;
+       }
+       polygon.addPoint(medianPoint.getX(), medianPoint.getY() ); //top point
+       for(var i=move.length-1;i>=0;i--) {
+         //get symetric point
+         var p = symetry(move[i],be.getP1(),be.getP2());
+         //applying second symetry with the perpendicar line passing by bisectrix as axis
+         var p2 = symetry(p,medianPoint,extremePoint);
+         polygon.addPoint(p2.getX(),p2.getY());
+       }
+       var nextP = eqe.getP1();
+       if(nextP.isEqual(medianPoint)) {
+         nextP = eqe.getP2();
+       }
+       polygon.addPoint(nextP.getX(), nextP.getY() ); //top point
+       for(var k=0;k<points.length;k++) {
+         if(!points[k].isEqual(eqe.getP1()) && !points[k].isEqual(eqe.getP2())) {
+           polygon.addPoint(points[k].getX(),points[k].getY());
          }
-        var ps = face.getEndPoint(true);
-        var p2 = face.getEndPoint(false);
-        polygon.addPoint(ps.getX(),ps.getY());
-        polygon2[i].addPoint(p2.getX(),p2.getY());
-        polygon2[i].setCenter(new Point(p2.getX(),p2.getY()));
-        polygons.push(polygon2[i]);
+       }
+       //polygon.addPoint(points[2].getX(), points[2].getY() ); //top point
 
-      }
-      this.p.println("CREATION ENDED "+this.move.length);
-      polygon.isInPolygon(0,0);
-      polygons.push(polygon);
+       //this.p.println("OK");
+       polygons.push(polygon);
+       this.p.println("OK");
+       return polygons;
      }
      return polygons;
 
    }
-
-  this.printAngle = function() {
-
-    this.p.println((calculateAngle(this.p1,this.p2,this.p3)/Math.PI)*180 );
-    this.p.println(calculateAngle(this.p2,this.p3,this.p1));
-    this.p.println(calculateAngle(this.p3,this.p1,this.p2));
-  }
-
-
 }

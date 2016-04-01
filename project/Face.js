@@ -10,6 +10,22 @@ function Face(p1,p2,p3,proc) {
   this.point = [p1,p2,p3];
   this.edges  = [new Edge(p1,p2), new Edge(p2,p3), new Edge(p3,p1)];
   this.p =proc;
+
+
+  this.folded = false; //indicate if the cut is over
+  this.beginEdge = -1;
+  this.endEdge = -1;
+  this.moves = [];
+
+  this.lf = null;
+  this.bf = null;
+  this.rf = null;
+  this.neighbours = [this.lf,this.rf,this.bf];
+
+  this.getNeighbours = function() {
+    return this.neighbours;
+  }
+
   this.setLeftFace = function(lf) {this.lf = lf;}  //face adjacent to p1-p2
   this.setRightFace = function(rf) {this.rf = rf;} //face adjacent to p2-p3
   this.setBottomFace = function(bf) {this.bf = bf;}  //face adjacent to p3-p1
@@ -17,11 +33,6 @@ function Face(p1,p2,p3,proc) {
   this.getLeftFace = function() {return this.lf;}
   this.getRightFace = function() {return this.rf;}
   this.getBottomFace = function() {return this.bf;}
-
-  this.folded = false;
-  this.beginEdge = -1;
-  this.endEdge = -1;
-  this.moves = [];
 
   this.printCenter = function() {
     this.p.fill(255,0,0);
@@ -33,6 +44,14 @@ function Face(p1,p2,p3,proc) {
 
   this.getMove = function() {
     return this.moves;
+  }
+
+  this.getPoints = function() {
+    return this.point;
+  }
+
+  this.getEdges = function() {
+    return this.edges;
   }
 
   this.getEndPoint = function(order) {
@@ -54,9 +73,48 @@ function Face(p1,p2,p3,proc) {
     }
   }
 
+  this.getEquivalentEdge = function(edge) { //get an edge P1-P2 which is the same that P3-P4 on the tedrahedra but not on the development such that  P1=P3
+    var edgeNumber = -1;
+    for(var j=0;j<this.edges.length;j++) {
+      if(edge == this.edges[j]) {
+        edgeNumber = j;
+      }
+    }
+    var face = this.lf;
+    if(edgeNumber == 1) {
+      face = this.rf;
+    }else if(edgeNumber == 2){
+      face = this.bf;
+    }
+
+    var e = face.getEdges();
+    e = e[edgeNumber];
+    if(edgeNumber != 2) { //not bottom face
+      e = new Edge(e.getP2(),e.getP1());
+    }
+    return e;
+  }
+
+  this.getEquivalentFace = function(edge) { //get an edge P1-P2 which is the same that P3-P4 on the tedrahedra but not on the development such that  P1=P3
+    var edgeNumber = -1;
+    for(var j=0;j<this.edges.length;j++) {
+      if(edge == this.edges[j]) {
+        edgeNumber = j;
+      }
+    }
+    var face = this.lf;
+    if(edgeNumber == 1) {
+      face = this.rf;
+    }else if(edgeNumber == 2){
+      face = this.bf;
+    }
+    return face;
+  }
+
 
 
   this.getEndingEdge = function() {return this.edges[this.endEdge];}
+  this.getBegingEdge = function() {return this.edges[this.beginEdge];}
 
   this.addPoint = function(x,y) {
     this.moves.push(new Point(x,y));
@@ -72,8 +130,6 @@ function Face(p1,p2,p3,proc) {
       var p2 = this.edges[i].getP2();
       if(math.abs(vectorProduct(p1.getX(),p1.getY(),p2.getX(),p2.getY(),x,y)) < LIMIT && (( y >= p1.getY() && y <= p2.getY() ) || ( y <= p1.getY() && y >= p2.getY() ) || (p1.getY()== p2.getY() && math.abs(p1.getY() - y) <=20 && ((x>=p1.getX() && x<=p2.getX()) || (x<=p1.getX() && x>=p2.getX()) )   )  )  ) {
         this.beginEdge = i;
-        //this.p.println("ADD POINT IN FACE");
-        //this.moves.push(new Point(x,y));
         return true;
       }
     }
@@ -84,18 +140,12 @@ function Face(p1,p2,p3,proc) {
     for(var j=0;j<this.edges.length;j++) {
       var p1 = this.edges[j].getP1();
       var p2 = this.edges[j].getP2();
-      //this.p.println("ADD POINT IN FACE");
-      //this.moves.push(new Point(x,y));
       if(j!=this.beginEdge && math.abs(vectorProduct(p1.getX(),p1.getY(),p2.getX(),p2.getY(),x,y)) < LIMIT && (( y >= p1.getY() && y <= p2.getY() ) || ( y <= p1.getY() && y >= p2.getY() ) || (p1.getY()== p2.getY() && math.abs(p1.getY() - y) <=20 )  )  ) {
-        this.p.println("END");
         this.p.fill(0,255,0);
         this.p.ellipse(x,y,pointSize,pointSize);
         this.endEdge = j;
         this.folded = true;
-        this.p.println("END");
         return true;
-      }else {
-        //this.p.println("NOT ENDED");
       }
     }
     return false;
@@ -115,27 +165,21 @@ function Face(p1,p2,p3,proc) {
     }
   }
 
+  //get the point to the last point of the cut  on the adjacent face in the development serving as support for the cut
   this.nextPoint = function(x,y) {
-    //this.p.println("OK 2");
     var nextFace = this.nextFace();
     if(nextFace!=null) {
-      //this.p.println("OK 2");
       var oldP1 = this.edges[this.endEdge].getP1();
       var oldP2 = this.edges[this.endEdge].getP2();
-      //this.p.println("OK 3");
       var newP1 = nextFace.edges[this.endEdge].getP1();
       var newP2 = nextFace.edges[this.endEdge].getP2();
-      //this.p.println("ADD POINT IN NEXT FACE");
       nextFace.beginEdge = this.endEdge;
       if(!((oldP1 == newP1 && oldP2 == newP2) || (oldP1 == newP2 && oldP2 == newP1) )) {
         var deltaX = math.ceil(oldP1.getX() - x);
         var deltaY = math.ceil(oldP1.getY() - y);
-        //this.p.ellipse(oldP1.getX() , oldP1.getY() ,pointSize,pointSize);
         this.p.ellipse(newP2.getX() + deltaX, newP2.getY() +deltaY ,pointSize,pointSize);
-        //nextFace.moves.push(new Point(newP2.getX() + deltaX,newP2.getY() + deltaY ));
         return new Point(newP2.getX() + deltaX,newP2.getY() + deltaY );
-      }else { //same edge graphically
-        //nextFace.moves.push(new Point(x,y));
+      }else { //same edge graphically because edge to the bottom face is adjacent in the development
         return new Point(x,y);
       }
 
@@ -143,10 +187,12 @@ function Face(p1,p2,p3,proc) {
   }
 
   this.setFolded =function(){this.folded=true;}
+
   this.isFolded = function() {
     return this.folded;
   }
 
+  //reset the cut as it was before beginning
   this.reset = function() {
     this.folded = false;
     this.beginEdge = -1;

@@ -13,31 +13,31 @@ function symetry(p,d1,d2) {
   //line d parameter
   var a= (d1.getY() - d2.getY())/(d1.getX() - d2.getX()) ;
   var b= d2.getY() - a*d2.getX();
-  //line d' perpendicular to d passing by p
-  var a2=(-1/a),b2= y + x/a;
+  if(a!=0 && a <10000 && a >-1000) {
+    //line d' perpendicular to d passing by p
+    var a2=(-1/a),b2= y + x/a;
 
-  //p' = intersection btw d' and d
-  var x2=(b2-b)/(a-a2);
-  var y2= a2*x2 + b2;
-  //p'' = result of symetry
-  var x3= x + 2*(x2-x) ,y3=y+ 2*(y2-y);
-  return new Point(x3,y3);
+    //p' = intersection btw d' and d
+    var x2=(b2-b)/(a-a2);
+    var y2= a2*x2 + b2;
+    //p'' = result of symetry
+    var x3= x + 2*(x2-x) ,y3=y+ 2*(y2-y);
+    return new Point(x3,y3);
+  }else if(a==0){
+    return new Point(x,y + 2*(b-y));
+  }else {
+    return new Point(x - 2* (x - d1.getX()) ,y );
+  }
 }
 
 //Test is two segment p1-p2 and p3-p4 have an intersection
 function isCrossing(p1,p2,p3,p4) {
-    var r = new Point(p2.getX() - p1.getX(), p2.getY() - p1.getY());
-    var s = new Point(p4.getX() - p3.getX(), p4.getY() - p3.getY());
-    var vp = vectorProduct2(r,s);
-    if(vp !=0) {
-      var t = vectorProduct2(new Point(p3.getX() - p1.getX(), p3.getY() - p1.getY()) ,s);
-      t = t/vp;
+    var v11 = vectorProduct(p1.getX(),p1.getY(),p2.getX(),p2.getY(),p3.getX(),p3.getY());
+    var v12 = vectorProduct(p1.getX(),p1.getY(),p2.getX(),p2.getY(),p4.getX(),p4.getY());
+    var v21 = vectorProduct(p3.getX(),p3.getY(),p4.getX(),p4.getY(),p1.getX(),p1.getY());
+    var v22 = vectorProduct(p3.getX(),p3.getY(),p4.getX(),p4.getY(),p2.getX(),p2.getY());
+    return v11*v12 <0 && v21*v22 < 0;
 
-      var u = vectorProduct2(new Point(p3.getX() - p1.getX(), p3.getY() - p1.getY()) ,r);
-      u = u/vp;
-      return u >=0 && u <=1 && t>=0 && t<=1;
-    }
-    return false;
 }
 
 //Test is a polygon cross one poygon in the list polygons

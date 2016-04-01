@@ -39,15 +39,15 @@ function FlatTorrus(center,proc) {
     //test if point is intérior
     if(this.p1.getY() <= y && this.p4.getY() >= y && this.p1.getX() <= x && this.p2.getX() >= x) {
       if(!this.crossed(x,y)) {   //Check is last added segment intersects another segment
-        if( math.abs(vectorProduct(this.p2.getX(),this.p2.getY(),this.p3.getX(),this.p3.getY(),x,y)) < 1500  ) { //other "face"
+        if( math.abs(vectorProduct(this.p2.getX(),this.p2.getY(),this.p3.getX(),this.p3.getY(),x,y)) < LIMIT  ) { //other "face"
           x = this.p2.getX();
           this.p.stroke(255,0,0);
           this.endMove = true;
-        }else if( math.abs(vectorProduct(this.p1.getX(),this.p1.getY(),this.p2.getX(),this.p2.getY(),x,y)) < 1500) {
+        }else if( math.abs(vectorProduct(this.p1.getX(),this.p1.getY(),this.p2.getX(),this.p2.getY(),x,y)) < LIMIT && ( math.abs(this.p1.getY() - y) <=20 && x>=this.p1.getX() && x<=this.p2.getX() ) ) {
           y = this.p2.getY();
           this.p.stroke(255,0,0);
           this.endMove = true;
-        }else if( math.abs(vectorProduct(this.p4.getX(),this.p4.getY(),this.p3.getX(),this.p3.getY(),x,y)) < 1500) {
+        }else if( math.abs(vectorProduct(this.p4.getX(),this.p4.getY(),this.p3.getX(),this.p3.getY(),x,y)) < LIMIT && (math.abs(this.p3.getY() - y) <=20 && x<=this.p3.getX() && x>=this.p4.getX() )     ) {
           y = this.p4.getY();
           this.p.stroke(255,0,0);
           this.endMove = true;
@@ -56,9 +56,7 @@ function FlatTorrus(center,proc) {
         this.p.line(x,y,this.move[this.move.length-2].getX() ,this.move[this.move.length-2].getY());
         this.p.stroke(0,0,0);
       }else { //if there is a crossing inthe cu the last 3 moves are removed
-        for(i = 0;i<3;i++) {
           this.move.pop();
-        }
         this.draw();
       }
     }
@@ -68,7 +66,7 @@ function FlatTorrus(center,proc) {
   this.crossed = function(x,y) {
     var p = new Point(x,y);
     var res = false;
-    for(i=0;i< this.move.length -3; i++) {
+    for(i=0;i<= this.move.length -3; i++) {
       res = isCrossing( this.move[i], this.move[i+1] ,this.move[this.move.length - 1],p) || res ;
     }
     return res;
