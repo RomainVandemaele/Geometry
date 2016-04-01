@@ -82,7 +82,7 @@ function Tetrahedra(center,proc) { //flat equilateral trangle
             np = this.currentFace.nextPoint(x,y);
             this.currentFace = nextFace;
             this.orderFace.push(nextFace);
-            this.endMove = true;
+            //this.endMove = true;
             this.p.println("END");
           }else {
             this.endMove = true;
@@ -153,54 +153,111 @@ function Tetrahedra(center,proc) { //flat equilateral trangle
      this.p.fill(100);
      var polygons = [];
      if(this.orderFace.length == 2 && this.orderFace[1] == this.faces[2] ) { //add verif endFace = bottom
-       var polygon = new Polygon(this.p,this.c);
-
-       //this.p.println("OK");
-       var move = this.orderFace[0].getMove();
-       //this.p.println("OK");
-       var be = this.orderFace[0].getBegingEdge();
-       //this.p.println("OK");
-       var eqe = this.orderFace[0].getEquivalentEdge(be);
-       var face = this.orderFace[0].getEquivalentFace(be);
-       var points = face.getPoints();
-       var medianPoint = this.p31;
-       if(be.getP2().isEqual(this.p12) || eqe.getP2().isEqual(this.p12) || be.getP1().isEqual(this.p12) || eqe.getP1().isEqual(this.p12) ) {
-         medianPoint = this.p12;
-       }else if(be.getP2().isEqual(this.p23) || eqe.getP2().isEqual(this.p23) || be.getP1().isEqual(this.p23) || eqe.getP1().isEqual(this.p23) ) {
-         medianPoint = this.p23;
-       }
-       var extremePoint = this.p3;
-       if(medianPoint.isEqual(this.p23)) {
-         extremePoint = this.p1;
-       }else if(medianPoint.isEqual(this.p31)) {
-         extremePoint = this.p2;
-       }
-       polygon.addPoint(medianPoint.getX(), medianPoint.getY() ); //top point
-       for(var i=move.length-1;i>=0;i--) {
-         //get symetric point
-         var p = symetry(move[i],be.getP1(),be.getP2());
-         //applying second symetry with the perpendicar line passing by bisectrix as axis
-         var p2 = symetry(p,medianPoint,extremePoint);
-         polygon.addPoint(p2.getX(),p2.getY());
-       }
-       var nextP = eqe.getP1();
-       if(nextP.isEqual(medianPoint)) {
-         nextP = eqe.getP2();
-       }
-       polygon.addPoint(nextP.getX(), nextP.getY() ); //top point
-       for(var k=0;k<points.length;k++) {
-         if(!points[k].isEqual(eqe.getP1()) && !points[k].isEqual(eqe.getP2())) {
-           polygon.addPoint(points[k].getX(),points[k].getY());
+       var edges = [this.orderFace[0].getBegingEdge(),this.orderFace[0].getNonUsedEdge()];
+       for(var j=0;j<edges.length;j++) {
+         var polygon = new Polygon(this.p,this.c);
+         //this.p.println("OK");
+         var move = this.orderFace[0].getMove();
+         //this.p.println("OK");
+         var be = edges[j];
+         //this.p.println("OK");
+         var eqe = this.orderFace[0].getEquivalentEdge(be);
+         var face = this.orderFace[0].getEquivalentFace(be);
+         var points = face.getPoints();
+         var medianPoint = this.p31;
+         if(be.getP2().isEqual(this.p12) || eqe.getP2().isEqual(this.p12) || be.getP1().isEqual(this.p12) || eqe.getP1().isEqual(this.p12) ) {
+           medianPoint = this.p12;
+         }else if(be.getP2().isEqual(this.p23) || eqe.getP2().isEqual(this.p23) || be.getP1().isEqual(this.p23) || eqe.getP1().isEqual(this.p23) ) {
+           medianPoint = this.p23;
          }
+         var extremePoint = this.p3;
+         if(medianPoint.isEqual(this.p23)) {
+           extremePoint = this.p1;
+         }else if(medianPoint.isEqual(this.p31)) {
+           extremePoint = this.p2;
+         }
+         polygon.addPoint(medianPoint.getX(), medianPoint.getY() ); //top point
+         for(var i=move.length-1;i>=0;i--) {
+           //get symetric point
+           var p = symetry(move[i],be.getP1(),be.getP2());
+           //applying second symetry with the perpendicar line passing by bisectrix as axis
+           var p2 = symetry(p,medianPoint,extremePoint);
+           polygon.addPoint(p2.getX(),p2.getY());
+         }
+         var nextP = eqe.getP1();
+         if(nextP.isEqual(medianPoint)) {
+           nextP = eqe.getP2();
+         }
+         polygon.addPoint(nextP.getX(), nextP.getY() ); //top point
+         for(var k=0;k<points.length;k++) {
+           if(!points[k].isEqual(eqe.getP1()) && !points[k].isEqual(eqe.getP2())) {
+             polygon.addPoint(points[k].getX(),points[k].getY());
+           }
+         }
+         polygons.push(polygon);
        }
-       //polygon.addPoint(points[2].getX(), points[2].getY() ); //top point
-
-       //this.p.println("OK");
+       var polygon = new Polygon(this.p,this.c);
+       var points1 = polygons[0].getPoints();
+       for(var i=0;i<points1.length;i++) {
+         polygon.addPoint(points1[i].getX(),points1[i].getY());
+       }
+       var points2 = polygons[1].getPoints();
+       for(var i=points2.length-2;i>=0;i--) {
+         polygon.addPoint(points2[i].getX(),points2[i].getY());
+       }
+       polygons.pop();
+       polygons.pop();
        polygons.push(polygon);
-       this.p.println("OK");
        return polygons;
+     }else if(this.orderFace.length == 2 && this.orderFace[1] != this.faces[2] ) {
+        var polygon = new Polygon(this.p,this.c);
+        var move = this.orderFace[0].getMove();
+
+        for(var i=move.length-1;i>=0;i--) {
+          polygon.addPoint(move[i].getX(),move[i].getY());
+        }
+        var be = this.orderFace[0].getBegingEdge();
+        //this.p.println("OK");
+        var eqe = this.orderFace[0].getEquivalentEdge(be);
+        var face = this.orderFace[0].getEquivalentFace(be);
+        var points = face.getPoints();
+        var medianPoint = this.p31;
+        if(be.getP2().isEqual(this.p12) || eqe.getP2().isEqual(this.p12) || be.getP1().isEqual(this.p12) || eqe.getP1().isEqual(this.p12) ) {
+          medianPoint = this.p12;
+        }else if(be.getP2().isEqual(this.p23) || eqe.getP2().isEqual(this.p23) || be.getP1().isEqual(this.p23) || eqe.getP1().isEqual(this.p23) ) {
+          medianPoint = this.p23;
+        }
+        var extremePoint = this.p3;
+        if(medianPoint.isEqual(this.p23)) {
+          extremePoint = this.p1;
+        }else if(medianPoint.isEqual(this.p31)) {
+          extremePoint = this.p2;
+        }
+        polygon.addPoint(medianPoint.getX(), medianPoint.getY() ); //top point
+        for(var i=0;i<move.length;i++) {
+          //get symetric point
+          var p = symetry(move[i],be.getP1(),be.getP2());
+          //applying second symetry with the perpendicar line passing by bisectrix as axis
+          var p2 = symetry(p,medianPoint,extremePoint);
+          polygon.addPoint(p2.getX(),p2.getY());
+        }
+        var nextP = eqe.getP1();
+        if(nextP.isEqual(medianPoint)) {
+          nextP = eqe.getP2();
+        }
+        polygon.addPoint(nextP.getX(), nextP.getY() ); //top point
+        for(var k=0;k<points.length;k++) {
+          if(!points[k].isEqual(eqe.getP1()) && !points[k].isEqual(eqe.getP2())) {
+            polygon.addPoint(points[k].getX(),points[k].getY());
+          }
+        }
+        polygon.addPoint(extremePoint.getX(), extremePoint.getY() ); //top point
+        polygon.addPoint(this.orderFace[0].getEndingEdge().getP2().getX(), this.orderFace[0].getEndingEdge().getP2().getY() );
+        polygons.push(polygon);
+        return polygons;
+     }else if(this.orderFace.length == 2 && this.orderFace[1] != this.faces[2] ) {
+
      }
-     return polygons;
 
    }
 }

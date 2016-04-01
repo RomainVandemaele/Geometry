@@ -115,6 +115,13 @@ function Face(p1,p2,p3,proc) {
 
   this.getEndingEdge = function() {return this.edges[this.endEdge];}
   this.getBegingEdge = function() {return this.edges[this.beginEdge];}
+  this.getNonUsedEdge = function() {
+    for(var i=0;i<this.edges.length;i++) {
+      if(i!=this.beginEdge && i!=this.endEdge) {
+          return this.edges[i];
+      }
+    }
+  }
 
   this.addPoint = function(x,y) {
     this.moves.push(new Point(x,y));
